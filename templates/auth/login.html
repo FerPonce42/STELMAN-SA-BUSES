@@ -1,0 +1,527 @@
+{% extends "base_public.html" %}
+
+{% block content %}
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Acceso Supervisor - San Stelman SA</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            background: linear-gradient(135deg, #1a2b4a 0%, #2c3e50 50%, #34495e 100%);
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* Patrón de fondo animado */
+        body::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                radial-gradient(circle at 20% 50%, rgba(245, 185, 66, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 80%, rgba(245, 185, 66, 0.08) 0%, transparent 50%),
+                radial-gradient(circle at 40% 20%, rgba(255, 255, 255, 0.05) 0%, transparent 30%);
+            animation: float 20s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translate(0, 0); }
+            50% { transform: translate(20px, 20px); }
+        }
+
+        /* Header con logo */
+        .login-header {
+            padding: 30px;
+            text-align: center;
+            position: relative;
+            z-index: 2;
+        }
+
+        .logo-container {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            padding: 15px 35px;
+            border-radius: 50px;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
+        }
+
+        .logo-container:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            border-color: #f5b942;
+        }
+
+        .logo-icon {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, #f5b942 0%, #f7c95c 100%);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+            color: #1a2b4a;
+            box-shadow: 0 4px 15px rgba(245, 185, 66, 0.4);
+        }
+
+        .logo-text {
+            color: #fff;
+            font-size: 1.6rem;
+            font-weight: 700;
+            letter-spacing: 1px;
+        }
+
+        /* Contenedor principal */
+        .login-container {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 40px 20px;
+            position: relative;
+            z-index: 2;
+        }
+
+        /* Card de login */
+        .login-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 24px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+            width: 100%;
+            max-width: 450px;
+            padding: 50px 45px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            animation: slideUp 0.6s ease-out;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Título */
+        .login-title {
+            text-align: center;
+            margin-bottom: 15px;
+        }
+
+        .login-title h1 {
+            font-size: 2rem;
+            color: #1a2b4a;
+            font-weight: 700;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+        }
+
+        .login-title h1 i {
+            color: #f5b942;
+            font-size: 1.8rem;
+        }
+
+        .login-subtitle {
+            color: #5a6a7a;
+            font-size: 0.95rem;
+            text-align: center;
+            margin-bottom: 35px;
+        }
+
+        /* Formulario */
+        .login-form {
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+        }
+
+        .form-group {
+            position: relative;
+        }
+
+        .form-group label {
+            display: block;
+            color: #2c3e50;
+            font-weight: 600;
+            font-size: 0.9rem;
+            margin-bottom: 8px;
+            margin-left: 5px;
+        }
+
+        .input-wrapper {
+            position: relative;
+        }
+
+        .input-icon {
+            position: absolute;
+            left: 18px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #5a6a7a;
+            font-size: 1.1rem;
+            transition: color 0.3s ease;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 16px 18px 16px 50px;
+            font-size: 1rem;
+            border: 2px solid #e8eaed;
+            border-radius: 12px;
+            background-color: #f8f9fa;
+            transition: all 0.3s ease;
+            font-family: inherit;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #f5b942;
+            background-color: #fff;
+            box-shadow: 0 0 0 4px rgba(245, 185, 66, 0.1);
+        }
+
+        .form-group input:focus + .input-icon {
+            color: #f5b942;
+        }
+
+        .form-group input::placeholder {
+            color: #adb5bd;
+        }
+
+        /* Botón de mostrar/ocultar contraseña */
+        .toggle-password {
+            position: absolute;
+            right: 18px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: #5a6a7a;
+            cursor: pointer;
+            font-size: 1.1rem;
+            transition: color 0.3s ease;
+            padding: 5px;
+        }
+
+        .toggle-password:hover {
+            color: #f5b942;
+        }
+
+        /* Recordar sesión y olvidé contraseña */
+        .form-options {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: -10px;
+        }
+
+        .remember-me {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .remember-me input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+            accent-color: #f5b942;
+        }
+
+        .remember-me label {
+            color: #5a6a7a;
+            font-size: 0.9rem;
+            cursor: pointer;
+            margin: 0;
+        }
+
+        .forgot-password {
+            color: #f5b942;
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 600;
+            transition: color 0.3s ease;
+        }
+
+        .forgot-password:hover {
+            color: #d49a2a;
+            text-decoration: underline;
+        }
+
+        /* Botón de ingresar */
+        .btn-login {
+            background: linear-gradient(135deg, #f5b942 0%, #f7c95c 100%);
+            color: #1a2b4a;
+            padding: 16px 30px;
+            font-size: 1.1rem;
+            font-weight: 700;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-top: 10px;
+            box-shadow: 0 4px 15px rgba(245, 185, 66, 0.3);
+        }
+
+        .btn-login:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(245, 185, 66, 0.5);
+        }
+
+        .btn-login:active {
+            transform: translateY(0);
+        }
+
+        /* Link de ayuda */
+        .help-text {
+            text-align: center;
+            margin-top: 25px;
+            padding-top: 25px;
+            border-top: 1px solid #e8eaed;
+        }
+
+        .help-text p {
+            color: #5a6a7a;
+            font-size: 0.9rem;
+        }
+
+        .help-text a {
+            color: #f5b942;
+            text-decoration: none;
+            font-weight: 600;
+            transition: color 0.3s ease;
+        }
+
+        .help-text a:hover {
+            color: #d49a2a;
+            text-decoration: underline;
+        }
+
+        /* Footer */
+        .login-footer {
+            padding: 25px;
+            text-align: center;
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.85rem;
+            position: relative;
+            z-index: 2;
+        }
+
+        /* Decoraciones */
+        .decorative-circle {
+            position: absolute;
+            border-radius: 50%;
+            opacity: 0.1;
+            pointer-events: none;
+        }
+
+        .circle-1 {
+            width: 300px;
+            height: 300px;
+            background: #f5b942;
+            top: -100px;
+            right: -100px;
+        }
+
+        .circle-2 {
+            width: 200px;
+            height: 200px;
+            background: #fff;
+            bottom: -50px;
+            left: -50px;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .login-header {
+                padding: 20px;
+            }
+
+            .logo-container {
+                padding: 12px 25px;
+            }
+
+            .logo-icon {
+                width: 40px;
+                height: 40px;
+                font-size: 1.5rem;
+            }
+
+            .logo-text {
+                font-size: 1.3rem;
+            }
+
+            .login-card {
+                padding: 35px 25px;
+            }
+
+            .login-title h1 {
+                font-size: 1.6rem;
+            }
+
+            .form-options {
+                flex-direction: column;
+                gap: 15px;
+                align-items: flex-start;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .login-container {
+                padding: 20px 15px;
+            }
+
+            .login-card {
+                padding: 30px 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Círculos decorativos -->
+    <div class="decorative-circle circle-1"></div>
+    <div class="decorative-circle circle-2"></div>
+
+    <!-- Header con logo -->
+    <div class="login-header">
+        <div class="logo-container">
+            <div class="logo-icon">
+                <i class="fas fa-bus"></i>
+            </div>
+            <div class="logo-text">SAN STELMAN SA</div>
+        </div>
+    </div>
+
+    <!-- Contenedor principal -->
+    <div class="login-container">
+        <div class="login-card">
+            <div class="login-title">
+                <h1>
+                    <i class="fas fa-user-shield"></i>
+                    Acceso Supervisor
+                </h1>
+            </div>
+            <p class="login-subtitle">Ingrese sus credenciales para acceder al panel de control</p>
+
+            <form class="login-form" method="POST" autocomplete="on">
+                <!-- Campo Usuario -->
+                <div class="form-group">
+                    <label for="usuario">Usuario</label>
+                    <div class="input-wrapper">
+                        <input 
+                            type="text" 
+                            id="usuario" 
+                            name="usuario" 
+                            placeholder="Ingrese su usuario"
+                            required
+                            autofocus
+                        >
+                        <i class="fas fa-user input-icon"></i>
+                    </div>
+                </div>
+
+                <!-- Campo Contraseña -->
+                <div class="form-group">
+                    <label for="clave">Contraseña</label>
+                    <div class="input-wrapper">
+                        <input 
+                            type="password" 
+                            id="clave" 
+                            name="clave" 
+                            placeholder="********"
+                            required
+                        >
+                        <i class="fas fa-lock input-icon"></i>
+                        <button type="button" class="toggle-password" onclick="togglePassword()">
+                            <i class="fas fa-eye" id="toggleIcon"></i>
+                        </button>
+                    </div>
+                </div>
+
+
+                <!-- Opciones del formulario -->
+                <div class="form-options">
+                    <div class="remember-me">
+                        <input type="checkbox" id="remember" name="remember">
+                        <label for="remember">Recordar sesión</label>
+                    </div>
+                    <a href="#" class="forgot-password">¿Olvidó su contraseña?</a>
+                </div>
+
+                <!-- Botón de ingresar -->
+                <button type="submit" class="btn-primary">
+                    Ingresar
+                </button>
+
+                <!-- Texto de ayuda -->
+                <div class="auth-help">
+                    <p>¿Necesitas ayuda? <a href="/">Volver al inicio</a></p>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="login-footer">
+        © 2025 Sistema de Transporte - San Stelman SA. Todos los derechos reservados.
+    </div>
+
+    <script>
+        function togglePassword() {
+            const passwordInput = document.getElementById('password');
+            const toggleIcon = document.getElementById('toggleIcon');
+            
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                toggleIcon.classList.remove('fa-eye');
+                toggleIcon.classList.add('fa-eye-slash');
+            } else {
+                passwordInput.type = 'password';
+                toggleIcon.classList.remove('fa-eye-slash');
+                toggleIcon.classList.add('fa-eye');
+            }
+        }
+
+        // Animación al hacer focus en los inputs
+        document.querySelectorAll('.form-group input').forEach(input => {
+            input.addEventListener('focus', function() {
+                this.parentElement.parentElement.style.transform = 'translateX(3px)';
+            });
+            
+            input.addEventListener('blur', function() {
+                this.parentElement.parentElement.style.transform = 'translateX(0)';
+            });
+        });
+    </script>
+</body>
+{% endblock %}

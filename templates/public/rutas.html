@@ -1,0 +1,554 @@
+{% extends "base_public.html" %}
+{% block content %}
+<style>
+    /* ===== HERO SECTION DE RUTAS ===== */
+    .rutas-hero {
+        background: linear-gradient(135deg, #1a2b4a 0%, #2c3e50 100%);
+        color: #fff;
+        padding: 60px 40px;
+        text-align: center;
+        margin-bottom: 0;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .rutas-hero::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-image: 
+            radial-gradient(circle at 20% 50%, rgba(245, 185, 66, 0.1) 0%, transparent 50%),
+            radial-gradient(circle at 80% 80%, rgba(245, 185, 66, 0.08) 0%, transparent 50%);
+        pointer-events: none;
+    }
+
+    .rutas-hero-content {
+        position: relative;
+        z-index: 2;
+        max-width: 800px;
+        margin: 0 auto;
+    }
+
+    .rutas-hero h1 {
+        font-size: 2.8rem;
+        margin-bottom: 15px;
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 15px;
+    }
+
+    .rutas-hero h1 i {
+        color: #f5b942;
+        font-size: 2.5rem;
+    }
+
+    .rutas-hero p {
+        font-size: 1.1rem;
+        opacity: 0.9;
+        line-height: 1.6;
+    }
+
+    /* ===== LAYOUT PRINCIPAL ===== */
+    .routes-layout {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 0;
+        display: grid;
+        grid-template-columns: 1fr 1.5fr;
+        gap: 0;
+    }
+
+    /* ===== SIDEBAR DE RUTAS ===== */
+    .routes-sidebar {
+        display: flex;
+        flex-direction: column;
+        gap: 0;
+        padding: 40px;
+        background-color: #f8f9fa;
+    }
+
+    .route-card {
+        background: #fff;
+        border-radius: 16px;
+        padding: 40px 35px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        border-left: 5px solid #f5b942;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .route-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 5px;
+        height: 100%;
+        background: linear-gradient(180deg, #f5b942 0%, #f7c95c 100%);
+        transition: width 0.3s ease;
+    }
+
+    .route-card:hover {
+        transform: translateX(5px);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+    }
+
+    .route-card:hover::before {
+        width: 100%;
+        opacity: 0.05;
+    }
+
+    .route-card h4 {
+        font-size: 1.8rem;
+        color: #1a2b4a;
+        margin-bottom: 30px;
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        font-weight: 700;
+    }
+
+    .route-card h4::before {
+        content: '\f207';
+        font-family: 'Font Awesome 6 Free';
+        font-weight: 900;
+        width: 50px;
+        height: 50px;
+        background: linear-gradient(135deg, #f5b942 0%, #f7c95c 100%);
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #1a2b4a;
+        font-size: 1.4rem;
+        flex-shrink: 0;
+    }
+
+    .route-meta {
+        display: flex;
+        flex-direction: column;
+        gap: 18px;
+        margin-bottom: 35px;
+        padding: 25px 20px;
+        background-color: #f8f9fa;
+        border-radius: 12px;
+    }
+
+    .route-meta span {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        font-size: 1.05rem;
+        color: #5a6a7a;
+        padding: 10px 0;
+    }
+
+    .route-meta i {
+        color: #f5b942;
+        font-size: 1.3rem;
+        min-width: 28px;
+        text-align: center;
+        flex-shrink: 0;
+    }
+
+    .route-meta strong {
+        color: #1a2b4a;
+        font-weight: 700;
+        font-size: 1.1rem;
+    }
+
+    .paraderos-list {
+        margin-top: 25px;
+        padding-top: 25px;
+        border-top: 2px solid #e8eaed;
+    }
+
+    .paraderos-list strong {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        color: #2c3e50;
+        font-size: 1.1rem;
+        margin-bottom: 18px;
+        font-weight: 700;
+    }
+
+    .paraderos-list strong::before {
+        content: '\f3c5';
+        font-family: 'Font Awesome 6 Free';
+        font-weight: 900;
+        color: #f5b942;
+        font-size: 1.2rem;
+    }
+
+    .paraderos-list ul {
+        list-style: none;
+        padding: 0;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .paraderos-list li {
+        padding: 12px 15px;
+        background-color: #f8f9fa;
+        border-radius: 8px;
+        font-size: 0.95rem;
+        color: #5a6a7a;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        transition: all 0.3s ease;
+        line-height: 1.5;
+    }
+
+    .paraderos-list li::before {
+        content: '\f124';
+        font-family: 'Font Awesome 6 Free';
+        font-weight: 900;
+        color: #f5b942;
+        font-size: 0.85rem;
+        min-width: 16px;
+    }
+
+    .paraderos-list li:hover {
+        background-color: #fff8e7;
+        padding-left: 20px;
+        transform: translateX(3px);
+    }
+
+    .paraderos-list p {
+        color: #999;
+        font-style: italic;
+        font-size: 0.95rem;
+        margin-top: 12px;
+        padding: 12px;
+        background-color: #f8f9fa;
+        border-radius: 8px;
+    }
+
+    /* ===== SECCIÓN DEL MAPA ===== */
+    .routes-map {
+        background: #fff;
+        padding: 40px;
+        display: flex;
+        flex-direction: column;
+        min-height: 600px;
+    }
+
+    .routes-map h3 {
+        font-size: 1.6rem;
+        color: #1a2b4a;
+        margin-bottom: 20px;
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .routes-map h3::before {
+        content: '\f279';
+        font-family: 'Font Awesome 6 Free';
+        font-weight: 900;
+        color: #f5b942;
+        font-size: 1.5rem;
+    }
+
+    .map-container {
+        width: 100%;
+        flex: 1;
+        min-height: 500px;
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        background-color: #e5e3df;
+        position: relative;
+    }
+
+    /* Asegurar que Leaflet funcione */
+    #map {
+        width: 100%;
+        height: 100%;
+        z-index: 1;
+    }
+
+    .leaflet-container {
+        width: 100%;
+        height: 100%;
+    }
+
+    /* ===== MENSAJE VACÍO ===== */
+    .empty-state {
+        max-width: 600px;
+        margin: 80px auto;
+        text-align: center;
+        padding: 60px 40px;
+        background: #fff;
+        border-radius: 16px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    }
+
+    .empty-state i {
+        font-size: 5rem;
+        color: #f5b942;
+        margin-bottom: 20px;
+        opacity: 0.5;
+    }
+
+    .empty-state h2 {
+        color: #1a2b4a;
+        margin-bottom: 15px;
+        font-size: 1.8rem;
+    }
+
+    .empty-state p {
+        color: #5a6a7a;
+        font-size: 1.1rem;
+    }
+
+    /* ===== RESPONSIVE ===== */
+    @media (max-width: 1024px) {
+        .routes-layout {
+            grid-template-columns: 1fr;
+        }
+
+        .routes-sidebar {
+            padding: 30px 40px;
+        }
+
+        .routes-map {
+            padding: 30px 40px;
+        }
+
+        .map-container {
+            min-height: 500px;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .rutas-hero {
+            padding: 40px 20px;
+        }
+
+        .rutas-hero h1 {
+            font-size: 2rem;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .rutas-hero h1 i {
+            font-size: 2rem;
+        }
+
+        .rutas-hero p {
+            font-size: 1rem;
+        }
+
+        .routes-sidebar {
+            padding: 20px;
+        }
+
+        .route-card {
+            padding: 20px;
+        }
+
+        .route-card h4 {
+            font-size: 1.2rem;
+            flex-wrap: wrap;
+        }
+
+        .route-meta {
+            grid-template-columns: 1fr;
+        }
+
+        .routes-map {
+            padding: 20px;
+        }
+
+        .routes-map h3 {
+            font-size: 1.3rem;
+        }
+
+        .map-container {
+            min-height: 400px;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .rutas-hero h1 {
+            font-size: 1.6rem;
+        }
+
+        .route-card h4::before {
+            width: 35px;
+            height: 35px;
+            font-size: 1rem;
+        }
+
+        .map-container {
+            min-height: 350px;
+        }
+    }
+
+    /* ===== ESTILOS PARA LEAFLET ===== */
+    .leaflet-popup-content-wrapper {
+        border-radius: 12px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    }
+
+    .leaflet-popup-content {
+        margin: 15px;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    .leaflet-popup-content strong {
+        color: #1a2b4a;
+        font-size: 1.1rem;
+    }
+</style>
+
+<!-- Hero Section -->
+<section class="rutas-hero">
+    <div class="rutas-hero-content">
+        <h1>
+            <i class="fas fa-route"></i>
+            Nuestras Rutas
+        </h1>
+        <p>Explora nuestras rutas de transporte público. Conectamos los principales puntos de la ciudad con seguridad y puntualidad.</p>
+    </div>
+</section>
+
+{% if rutas %}
+<div class="routes-layout">
+    <!-- Sidebar con las tarjetas de rutas -->
+    <aside class="routes-sidebar">
+        {% for rt in rutas %}
+        <div class="route-card route-info" id="route-{{ rt.letra }}">
+            <h4>Ruta {{ rt.letra }}</h4>
+            
+            <div class="route-meta">
+                <span>
+                    <i class="fas fa-road"></i>
+                    <strong>{{ rt.distacia }}</strong> km
+                </span>
+                <span>
+                    <i class="fas fa-clock"></i>
+                    <strong>{{ rt.duracion }}</strong> hrs
+                </span>
+                <span>
+                    <i class="fas fa-hashtag"></i>
+                    ID: <strong>{{ rt.id_ruta }}</strong>
+                </span>
+            </div>
+            
+            <div class="paraderos-list">
+                <strong>Paraderos</strong>
+                {% if rt.paraderos %}
+                <ul>
+                    {% for p in rt.paraderos %}
+                    <li>{{ p.nombre_paradero }} — {{ p.ubicacion }}</li>
+                    {% endfor %}
+                </ul>
+                {% else %}
+                <p>No hay paraderos registrados para esta ruta.</p>
+                {% endif %}
+            </div>
+        </div>
+        {% endfor %}
+    </aside>
+
+    <!-- Mapa interactivo -->
+    <section class="routes-map">
+        <h3>Mapa Interactivo</h3>
+        <div id="map" class="map-container" data-paraderos='{{ paraderos_coords | default([]) | tojson | safe }}'></div>
+    </section>
+</div>
+
+<!-- Cargar Leaflet ANTES del script -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" 
+      integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" 
+      crossorigin=""/>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+        integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+        crossorigin=""></script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function(){
+        // Funcionalidad para mostrar/ocultar rutas según parámetro URL
+        const params = new URLSearchParams(window.location.search);
+        const letra = (params.get('letra') || '').toUpperCase();
+        
+        if (letra) {
+            // Ocultar todas las rutas
+            const allRoutes = document.querySelectorAll('.route-card.route-info');
+            allRoutes.forEach(r => r.style.display = 'none');
+            
+            // Mostrar solo la ruta seleccionada
+            const selectedRoute = document.getElementById('route-' + letra);
+            if (selectedRoute) {
+                selectedRoute.style.display = 'block';
+                selectedRoute.scrollIntoView({behavior: 'smooth', block: 'start'});
+            }
+        }
+        
+        // Inicializar mapa - ESPERAR a que Leaflet esté cargado
+        setTimeout(function() {
+            if (typeof L === 'undefined') {
+                console.error('Leaflet no está cargado');
+                return;
+            }
+            
+            const map = L.map('map').setView([-16.4090, -71.5375], 12);
+            
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                maxZoom: 19,
+                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+            }).addTo(map);
+            
+            const paraderosData = JSON.parse(document.getElementById('map').dataset.paraderos || '[]');
+            
+            if (paraderosData && paraderosData.length > 0) {
+                paraderosData.forEach(function(p){
+                    const marker = L.marker([p.lat, p.lng]).addTo(map);
+                    marker.bindPopup('<strong>'+p.name+'</strong><br/>Ruta: '+p.ruta);
+                });
+                map.setView([paraderosData[0].lat, paraderosData[0].lng], 13);
+            } else {
+                // Coordenadas de ejemplo si no hay datos
+                const rutaCoords = [
+                    {letra: 'F', coords: [-16.4090, -71.5375]},
+                    {letra: 'S', coords: [-16.3980, -71.5360]},
+                    {letra: 'N', coords: [-16.3920, -71.5250]},
+                    {letra: 'M', coords: [-16.4200, -71.5450]}
+                ];
+                
+                rutaCoords.forEach(r => {
+                    const marker = L.marker(r.coords).addTo(map);
+                    marker.bindPopup('<strong>Ruta '+r.letra+'</strong>');
+                });
+            }
+            
+            // Forzar actualización del mapa
+            setTimeout(function() {
+                map.invalidateSize();
+            }, 100);
+        }, 500);
+    });
+</script>
+
+{% else %}
+<!-- Estado vacío -->
+<div class="empty-state">
+    <i class="fas fa-route"></i>
+    <h2>No hay rutas registradas</h2>
+    <p>Actualmente no hay rutas disponibles en el sistema. Por favor, contacte con el administrador.</p>
+</div>
+{% endif %}
+
+{% endblock %}

@@ -1,0 +1,25 @@
+{% extends "base_supervisor.html" %}
+{% block content %}
+<h1>Incidencias</h1>
+{% if incidencias %}
+<table class="data-table">
+	<thead><tr><th>ID</th><th>Fecha</th><th>Descripción</th><th>Gravedad</th><th>Estado</th><th>Tipo</th><th>Costo</th><th>Bus</th></tr></thead>
+	<tbody>
+		{% for it in incidencias %}
+		<tr>
+			<td>{{ it.id_incdncia_oprtva }}</td>
+			<td>{{ it.fecha }}</td>
+			<td>{{ it.descripccion }}</td>
+			<td>{{ it.gravedad }}</td>
+			<td>{{ it.estado }}</td>
+			<td>{{ it.tipo_operativa }}</td>
+			<td>{{ it.costo }}</td>
+			<td>{{ it.id_bus or '-' }}</td>
+		</tr>
+		{% endfor %}
+	</tbody>
+</table>
+{% else %}
+<p>No hay incidencias registradas.</p>
+{% endif %}
+{% endblock %}

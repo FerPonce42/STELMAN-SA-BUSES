@@ -1,0 +1,31 @@
+{% extends "base_supervisor.html" %}
+{% block content %}
+<h1>Empleados</h1>
+{% if empleados %}
+<table class="data-table">
+	<thead><tr><th>ID</th><th>Nombre</th><th>Apellido</th><th>DNI</th><th>Sueldo</th><th>Teléfono</th><th>Tipo</th><th>Horario</th></tr></thead>
+	<tbody>
+		{% for emp in empleados %}
+		<tr>
+			<td>{{ emp.id_empleado }}</td>
+			<td>{{ emp.nombre }}</td>
+			<td>{{ emp.apellido }}</td>
+			<td>{{ emp.dni }}</td>
+			<td>{{ emp.sueldo }}</td>
+			<td>{{ emp.telefono or '-' }}</td>
+			<td>{{ emp.tipo }}</td>
+			<td>
+				{% if emp.horario_dia %}
+					{{ emp.horario_dia }}: {{ emp.horario_inicio }} - {{ emp.horario_salida }}
+				{% else %}
+					-
+				{% endif %}
+			</td>
+		</tr>
+		{% endfor %}
+	</tbody>
+</table>
+{% else %}
+<p>No hay empleados registrados.</p>
+{% endif %}
+{% endblock %}

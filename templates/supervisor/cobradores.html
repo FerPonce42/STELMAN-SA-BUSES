@@ -1,0 +1,31 @@
+{% extends "base_supervisor.html" %}
+{% block content %}
+<h1>Cobradores</h1>
+{% if cobradores %}
+<table class="data-table">
+  <thead><tr><th>ID</th><th>Nombre</th><th>Apellido</th><th>DNI</th><th>Turno</th><th>Idioma extra</th><th>Total recaudado</th><th>Horario</th></tr></thead>
+  <tbody>
+    {% for cb in cobradores %}
+    <tr>
+      <td>{{ cb.id_empleado }}</td>
+      <td>{{ cb.nombre or '-' }}</td>
+      <td>{{ cb.apellido or '-' }}</td>
+      <td>{{ cb.dni or '-' }}</td>
+      <td>{{ cb.turno }}</td>
+      <td>{{ cb.idioma_extra }}</td>
+      <td>{{ cb.total_recaudado }}</td>
+      <td>
+        {% if cb.horario_dia %}
+          {{ cb.horario_dia }}: {{ cb.horario_inicio }} - {{ cb.horario_salida }}
+        {% else %}
+          -
+        {% endif %}
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% else %}
+<p>No hay cobradores registrados.</p>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,83 @@
+{% extends "base_supervisor.html" %}
+{% block content %}
+    <div class="dashboard-header">
+        <h1>Panel Principal</h1>
+        <p>Bienvenido, {{ supervisor_nombre or 'Supervisor' }}.</p>
+    </div>
+
+    
+    <div class="dashboard-cards">
+        <div class="card">
+            <h3>Buses</h3>
+            <p>{{ total_buses }}</p>
+        </div>
+        <div class="card">
+            <h3>Rutas</h3>
+            <p>{{ total_rutas }}</p>
+        </div>
+        <div class="card">
+            <h3>Incidencias</h3>
+            <p>{{ total_incidencias }}</p>
+        </div>
+        <div class="card">
+            <h3>Empleados</h3>
+            <p>{{ total_empleados }}</p>
+            <small style="display:block; margin-top:6px; color:#666;">Choferes: {{ choferes_count }} — Cobradores (global): {{ cobradores_count }}</small>
+        </div>
+    </div>
+
+    
+    <div class="dashboard-stats">
+        <h3>Buses por Ruta</h3>
+        <canvas id="busesRutaChart"></canvas>
+    </div>
+
+    
+    <div style="margin-top:20px">
+        <h3>Incidencias recientes</h3>
+        {% if incidencias_recientes and incidencias_recientes|length > 0 %}
+            <ul>
+                {% for inc in incidencias_recientes %}
+                    <li><strong>{{ inc.fecha }}</strong> — {{ inc.descripccion[:120] }}{% if inc.descripccion|length > 120 %}...{% endif %} <em>({{ inc.estado }})</em></li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p>No hay incidencias recientes.</p>
+        {% endif %}
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script id="buses-por-ruta-json" type="application/json">{{ buses_por_ruta | tojson | safe }}</script>
+    <script>
+        (function(){
+            const raw = document.getElementById('buses-por-ruta-json')?.textContent || '[]';
+            let busesPorRuta = [];
+            try { busesPorRuta = JSON.parse(raw); } catch(e) { busesPorRuta = []; }
+
+            const busesPorRutaLabels = busesPorRuta.map(x => x.ruta);
+            const busesPorRutaData = busesPorRuta.map(x => x.buses_count);
+
+            const ctx = document.getElementById('busesRutaChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: busesPorRutaLabels,
+                    datasets: [{
+                        label: 'Buses por ruta',
+                        data: busesPorRutaData,
+                        borderColor: 'rgba(54, 162, 235, 1)',
+                        backgroundColor: 'rgba(54, 162, 235, 0.15)',
+                        fill: false,
+                        tension: 0.35,
+                        pointRadius: 5,
+                        pointBackgroundColor: 'rgba(54, 162, 235, 1)'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: { y: { beginAtZero: true } }
+                }
+            });
+        })();
+    </script>
+{% endblock %}

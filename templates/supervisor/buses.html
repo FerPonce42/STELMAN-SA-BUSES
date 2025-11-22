@@ -1,0 +1,28 @@
+{% extends "base_supervisor.html" %}
+{% block content %}
+<h1>Buses</h1>
+{% if buses %}
+<table class="data-table">
+	<thead>
+		<tr><th>ID</th><th>Placa</th><th>Modelo</th><th>Marca</th><th>Año</th><th>Color</th><th>Última revisión</th><th>Ruta</th><th>Encargado</th></tr>
+	</thead>
+	<tbody>
+		{% for b in buses %}
+		<tr>
+			<td>{{ b.id_bus }}</td>
+			<td>{{ b.placa }}</td>
+			<td>{{ b.modelo }}</td>
+			<td>{{ b.marca }}</td>
+			<td>{{ b.año_fabricacion }}</td>
+			<td>{{ b.color }}</td>
+			<td>{{ b.ultima_revision }}</td>
+			<td>{{ b.ruta_letra or '-' }}</td>
+			<td>{{ (b.encargado_nombre ~ ' ' ~ b.encargado_apellido).strip() if b.encargado_nombre else '-' }}</td>
+		</tr>
+		{% endfor %}
+	</tbody>
+</table>
+{% else %}
+<p>No hay buses registrados.</p>
+{% endif %}
+{% endblock %}

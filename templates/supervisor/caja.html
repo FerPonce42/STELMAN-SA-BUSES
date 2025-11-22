@@ -1,0 +1,24 @@
+{% extends "base_supervisor.html" %}
+{% block content %}
+<h1>Caja y recaudación</h1>
+{% if cajas %}
+<table class="data-table">
+	<thead><tr><th>ID</th><th>Fecha</th><th>Monto</th><th>Estado</th><th>Empleado</th><th>Ruta</th><th>Observación</th></tr></thead>
+	<tbody>
+		{% for c in cajas %}
+		<tr>
+			<td>{{ c.id_regstro_caja }}</td>
+			<td>{{ c.fecha_recaudacion }}</td>
+			<td>{{ c.monto }}</td>
+			<td>{{ c.estado_recaudacion or '-' }}</td>
+			<td>{{ (c.empleado_nombre ~ ' ' ~ c.empleado_apellido).strip() if c.empleado_nombre else '-' }}</td>
+			<td>{{ c.ruta_letra or '-' }}</td>
+			<td>{{ c.observacion or '-' }}</td>
+		</tr>
+		{% endfor %}
+	</tbody>
+</table>
+{% else %}
+<p>No hay registros de caja.</p>
+{% endif %}
+{% endblock %}

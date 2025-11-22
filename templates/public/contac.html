@@ -1,0 +1,800 @@
+{% extends "base_public.html" %}
+
+{% block content %}
+<style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        /* ===== HERO SECTION ===== */
+        .contact-hero {
+            position: relative;
+            height: 500px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            background: linear-gradient(135deg, #1a2b4a 0%, #2c3e50 100%);
+        }
+
+        .hero-slideshow {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+        }
+
+        .hero-slideshow::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(26, 43, 74, 0.7);
+            z-index: 1;
+        }
+
+        .contact-hero-content {
+            position: relative;
+            z-index: 2;
+            text-align: center;
+            color: #fff;
+            max-width: 800px;
+            padding: 0 20px;
+        }
+
+        .section-label {
+            color: #f5b942;
+            font-size: 0.9rem;
+            font-weight: 700;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            margin-bottom: 15px;
+            display: block;
+        }
+
+        .contact-hero-content h1 {
+            font-size: 3rem;
+            margin-bottom: 20px;
+            font-weight: 700;
+            line-height: 1.2;
+        }
+
+        .contact-hero-content h1 .highlight {
+            color: #f5b942;
+        }
+
+        .contact-hero-content p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+            line-height: 1.8;
+        }
+
+        /* ===== BREADCRUMB ===== */
+        .contact-breadcrumb {
+            background-color: #f8f9fa;
+            padding: 20px 80px;
+            border-bottom: 1px solid #e8eaed;
+        }
+
+        .contact-breadcrumb nav {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 0.95rem;
+        }
+
+        .contact-breadcrumb a {
+            color: #5a6a7a;
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+
+        .contact-breadcrumb a:hover {
+            color: #f5b942;
+        }
+
+        .contact-breadcrumb .separator {
+            color: #5a6a7a;
+        }
+
+        .contact-breadcrumb .current {
+            color: #1a2b4a;
+            font-weight: 600;
+        }
+
+        /* ===== INFORMACIÓN DE CONTACTO - SIN ESPACIOS ===== */
+        .contact-info {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 0;
+            padding: 0;
+            max-width: 100%;
+            margin: 0;
+        }
+
+        .contact-item,
+        .contact-item-social,
+        .contact-item-right {
+            padding: 60px 45px;
+            border-right: 1px solid #e8eaed;
+            transition: all 0.3s ease;
+            background-color: #ffffff;
+            display: flex;
+            flex-direction: column;
+            min-height: 480px;
+        }
+
+        .contact-item:last-child,
+        .contact-item-right {
+            border-right: none;
+        }
+
+        .contact-item:hover,
+        .contact-item-social:hover,
+        .contact-item-right:hover {
+            background-color: #f8f9fa;
+            box-shadow: inset 0 4px 0 #f5b942;
+        }
+
+        .contact-item h3,
+        .contact-item-social h3,
+        .contact-item-right h3 {
+            font-size: 1.4rem;
+            color: #1a2b4a;
+            margin-bottom: 30px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .contact-item h3::before {
+            content: "";
+            width: 4px;
+            height: 25px;
+            background-color: #f5b942;
+            border-radius: 2px;
+        }
+
+        /* Info grid */
+        .contact-item .info-grid {
+            display: grid;
+            grid-template-columns: auto 1fr;
+            gap: 18px 15px;
+            align-items: start;
+        }
+
+        .contact-item .info-grid .icon {
+            width: 40px;
+            height: 40px;
+            background-color: #fff8e7;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #f5b942;
+            font-size: 1rem;
+        }
+
+        .contact-item .info-grid .info-content {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            min-height: 40px;
+        }
+
+        .contact-item .info-grid .info-content strong {
+            color: #2c3e50;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-bottom: 2px;
+        }
+
+        .contact-item .info-grid .info-content span {
+            color: #5a6a7a;
+            font-size: 0.95rem;
+        }
+
+        /* Columna Social */
+        .contact-item-social {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .contact-item-social h3 {
+            text-align: center;
+        }
+
+        .social-icons {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .social-icon {
+            width: 55px;
+            height: 55px;
+            border-radius: 50%;
+            background-color: #f8f9fa;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.4rem;
+            color: #2c3e50;
+            transition: all 0.3s ease;
+            border: 2px solid #e8eaed;
+        }
+
+        .social-icon:hover {
+            transform: translateY(-5px) scale(1.1);
+            border-color: transparent;
+        }
+
+        .social-icon.facebook:hover { background-color: #1877f2; color: #fff; }
+        .social-icon.youtube:hover { background-color: #ff0000; color: #fff; }
+        .social-icon.email:hover { background-color: #ea4335; color: #fff; }
+        .social-icon.whatsapp:hover { background-color: #25d366; color: #fff; }
+
+        .whatsapp-cta {
+            background: linear-gradient(135deg, #25d366 0%, #128c7e 100%);
+            color: #fff;
+            padding: 16px 35px;
+            border-radius: 50px;
+            text-align: center;
+            text-decoration: none;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            transition: all 0.3s ease;
+            max-width: 280px;
+        }
+
+        .whatsapp-cta:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(37, 211, 102, 0.4);
+        }
+
+        .whatsapp-cta i {
+            font-size: 1.3rem;
+        }
+
+        /* Columna Derecha */
+        .contact-item-right {
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+        }
+
+        .contact-item-right .info-block h3 {
+            font-size: 1.15rem;
+            margin-bottom: 12px;
+        }
+
+        .contact-item-right .info-block h3 i {
+            color: #f5b942;
+        }
+
+        .contact-item-right p {
+            font-size: 0.95rem;
+            color: #5a6a7a;
+            margin: 0 0 5px 0;
+        }
+
+        .contact-item-right p.highlight-time {
+            color: #1a2b4a;
+            font-size: 1.2rem;
+            font-weight: 700;
+            margin-top: 5px;
+        }
+
+        .contact-item-right ul {
+            list-style: none;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .contact-item-right ul li a {
+            color: #f5b942;
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 0.95rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .contact-item-right ul li a::before {
+            content: "→";
+            color: #f5b942;
+            font-weight: 700;
+        }
+
+        .contact-item-right ul li a:hover {
+            color: #2c3e50;
+            padding-left: 5px;
+        }
+
+        /* ===== FORMULARIO CON OVERLAY ===== */
+        .contact-form-section {
+            position: relative;
+            padding: 80px 80px;
+            background: linear-gradient(135deg, rgba(26, 43, 74, 0.95) 0%, rgba(44, 62, 80, 0.95) 100%),
+                        url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320"><path fill="%23f5b942" fill-opacity="0.1" d="M0,96L48,112C96,128,192,160,288,160C384,160,480,128,576,122.7C672,117,768,139,864,154.7C960,171,1056,181,1152,165.3C1248,149,1344,107,1392,85.3L1440,64L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"></path></svg>') center/cover;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .contact-form {
+            background-color: rgba(255, 255, 255, 0.98);
+            padding: 50px;
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 650px;
+            width: 100%;
+            backdrop-filter: blur(10px);
+        }
+
+        .contact-form h3 {
+            font-size: 2rem;
+            color: #1a2b4a;
+            margin-bottom: 30px;
+            font-weight: 700;
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+        }
+
+        .contact-form h3::before {
+            content: "";
+            width: 4px;
+            height: 30px;
+            background-color: #f5b942;
+            border-radius: 2px;
+        }
+
+        .contact-form .form-group {
+            margin-bottom: 20px;
+        }
+
+        .contact-form label {
+            font-size: 0.95rem;
+            color: #2c3e50;
+            font-weight: 600;
+            display: block;
+            margin-bottom: 8px;
+        }
+
+        .contact-form input,
+        .contact-form textarea {
+            width: 100%;
+            padding: 14px 16px;
+            font-size: 1rem;
+            border: 2px solid #e8eaed;
+            border-radius: 8px;
+            background-color: #ffffff;
+            transition: all 0.3s ease;
+        }
+
+        .contact-form input:focus,
+        .contact-form textarea:focus {
+            outline: none;
+            border-color: #f5b942;
+            box-shadow: 0 0 0 4px rgba(245, 185, 66, 0.15);
+        }
+
+        .contact-form textarea {
+            min-height: 140px;
+            resize: vertical;
+        }
+
+        .contact-form .form-actions {
+            text-align: center;
+            margin-top: 30px;
+        }
+
+        .contact-form .btn-submit {
+            background: linear-gradient(135deg, #f5b942 0%, #f7c95c 100%);
+            color: #1a2b4a;
+            padding: 16px 50px;
+            font-size: 1.1rem;
+            font-weight: 700;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .contact-form .btn-submit:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(245, 185, 66, 0.5);
+        }
+
+        /* ===== MAPA ===== */
+        .contact-map {
+            background-color: #f8f9fa;
+            padding: 60px 80px;
+        }
+
+        .contact-map h3 {
+            font-size: 1.8rem;
+            color: #1a2b4a;
+            margin-bottom: 25px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .contact-map h3::before {
+            content: "";
+            width: 4px;
+            height: 30px;
+            background-color: #f5b942;
+            border-radius: 2px;
+        }
+
+        .map-container {
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        /* ===== UNIDADES DE NEGOCIO MEJORADAS ===== */
+        .business-units {
+            background: linear-gradient(135deg, #1a2b4a 0%, #2c3e50 100%);
+            padding: 70px 80px;
+            text-align: center;
+        }
+
+        .section-label-center {
+            color: #f5b942;
+            font-size: 0.9rem;
+            font-weight: 700;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            margin-bottom: 15px;
+            display: block;
+        }
+
+        .business-units h3 {
+            font-size: 2.5rem;
+            color: #ffffff;
+            margin-bottom: 15px;
+            font-weight: 700;
+        }
+
+        .business-units > p {
+            font-size: 1.1rem;
+            color: rgba(255, 255, 255, 0.7);
+            margin-bottom: 50px;
+            max-width: 700px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .units-list {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            max-width: 1200px;
+            margin: 0 auto;
+            flex-wrap: wrap;
+        }
+
+        .unit {
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(10px);
+            padding: 40px 30px;
+            border-radius: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            transition: all 0.4s ease;
+            flex: 1;
+            min-width: 280px;
+            max-width: 350px;
+        }
+
+        .unit:hover {
+            background: rgba(255, 255, 255, 0.12);
+            transform: translateY(-10px);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
+            border-color: #f5b942;
+        }
+
+        .unit .unit-icon {
+            font-size: 3rem;
+            color: #f5b942;
+            margin-bottom: 25px;
+            transition: transform 0.3s ease;
+        }
+
+        .unit:hover .unit-icon {
+            transform: scale(1.1) rotate(5deg);
+        }
+
+        .unit h4 {
+            font-size: 1.4rem;
+            color: #ffffff;
+            margin-bottom: 20px;
+            font-weight: 700;
+        }
+
+        .unit p {
+            font-size: 1rem;
+            color: rgba(255, 255, 255, 0.8);
+            margin-bottom: 10px;
+            line-height: 1.6;
+        }
+
+        .unit p strong {
+            color: #f5b942;
+            font-weight: 600;
+        }
+
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 1024px) {
+            .contact-info {
+                grid-template-columns: 1fr;
+            }
+            
+            .contact-item,
+            .contact-item-social,
+            .contact-item-right {
+                border-right: none;
+                border-bottom: 1px solid #e8eaed;
+            }
+
+            .contact-item-right {
+                border-bottom: none;
+            }
+
+            .units-list {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .unit {
+                max-width: 500px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .contact-hero {
+                height: 400px;
+            }
+            
+            .contact-hero-content h1 {
+                font-size: 2rem;
+            }
+            
+            .contact-breadcrumb,
+            .contact-form-section,
+            .contact-map,
+            .business-units {
+                padding: 40px 20px;
+            }
+
+            .contact-item,
+            .contact-item-social,
+            .contact-item-right {
+                padding: 35px 25px;
+            }
+
+            .contact-form {
+                padding: 35px 25px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .contact-hero-content h1 {
+                font-size: 1.6rem;
+            }
+            
+            .social-icons {
+                gap: 10px;
+            }
+            
+            .social-icon {
+                width: 48px;
+                height: 48px;
+                font-size: 1.2rem;
+            }
+
+            .unit {
+                min-width: 100%;
+            }
+        }
+</style>
+
+<!-- Hero de Contacto -->
+    <section class="contact-hero">
+        <div class="hero-slideshow"></div>
+        
+        <div class="contact-hero-content">
+            <span class="section-label">CONTÁCTANOS</span>
+            <h1>Mantén el contacto <span class="highlight">con nosotros</span></h1>
+            <p>Contacta con San Stelman SA para consultas sobre las rutas, paraderos, soporte o información general. Llámanos, envíanos un WhatsApp o envía un correo electrónico.</p>
+        </div>
+    </section>
+
+    <!-- Breadcrumb -->
+    <div class="contact-breadcrumb">
+        <nav>
+            <a href="/">Home one page</a>
+            <span class="separator">•</span>
+            <span class="current">Contacto</span>
+        </nav>
+    </div>
+
+    <!-- Información de contacto - Sin espacios -->
+    <section class="contact-info">
+        <!-- Columna 1: Información de contacto -->
+        <div class="contact-item">
+            <h3>Información de contacto</h3>
+            <div class="info-grid">
+                <div class="icon"><i class="fas fa-phone-alt"></i></div>
+                <div class="info-content">
+                    <strong>Teléfono</strong>
+                    <span>+51 945 321 789</span>
+                </div>
+                
+                <div class="icon"><i class="fas fa-envelope"></i></div>
+                <div class="info-content">
+                    <strong>Correo</strong>
+                    <span>contacto@stelman.com</span>
+                </div>
+                
+                <div class="icon"><i class="fas fa-bus"></i></div>
+                <div class="info-content">
+                    <strong>Colectivos</strong>
+                    <span>F, S, N, M</span>
+                </div>
+                
+                <div class="icon"><i class="fas fa-map-marker-alt"></i></div>
+                <div class="info-content">
+                    <strong>Dirección</strong>
+                    <span>Av. Central 123, Arequipa, Perú</span>
+                </div>
+                
+                <div class="icon"><i class="fas fa-clock"></i></div>
+                <div class="info-content">
+                    <strong>Horario</strong>
+                    <span>8:00 AM – 6:00 PM</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Columna 2: Redes Sociales -->
+        <div class="contact-item-social">
+            <h3>Síguenos en Redes</h3>
+            <div class="social-icons">
+                <a href="#" class="social-icon facebook"><i class="fab fa-facebook-f"></i></a>
+                <a href="#" class="social-icon youtube"><i class="fab fa-youtube"></i></a>
+                <a href="mailto:contacto@stelman.com" class="social-icon email"><i class="fas fa-envelope"></i></a>
+                <a href="https://wa.me/51945321789" class="social-icon whatsapp"><i class="fab fa-whatsapp"></i></a>
+            </div>
+            <a href="https://wa.me/51945321789" class="whatsapp-cta">
+                <i class="fab fa-whatsapp"></i>
+                Escríbenos por WhatsApp
+            </a>
+        </div>
+
+        <!-- Columna 3: Horarios y Enlaces -->
+        <div class="contact-item-right">
+            <div class="info-block">
+                <h3><i class="fas fa-clock"></i> Horarios de Atención</h3>
+                <p>Atención telefónica y en línea de lunes a sábado:</p>
+                <p class="highlight-time">6:00 AM – 8:00 PM</p>
+            </div>
+            
+            <div class="info-block">
+                <h3><i class="fas fa-link"></i> Enlaces Útiles</h3>
+                <ul>
+                    <li><a href="/rutas">Consulta nuestras rutas</a></li>
+                    <li><a href="/faq">Preguntas frecuentes</a></li>
+                    <li><a href="/soporte">Soporte en línea</a></li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <!-- Formulario de contacto con overlay -->
+    <section class="contact-form-section">
+        <div class="contact-form">
+            <h3>Envíanos tu mensaje</h3>
+            <form action="/submit_contact_form" method="POST">
+                <div class="form-group">
+                    <label for="name">Nombre:</label>
+                    <input type="text" id="name" name="name" placeholder="Tu nombre" required>
+                </div>
+                <div class="form-group">
+                    <label for="email">Correo Electrónico:</label>
+                    <input type="email" id="email" name="email" placeholder="Tu correo electrónico" required>
+                </div>
+                <div class="form-group">
+                    <label for="phone">Teléfono:</label>
+                    <input type="tel" id="phone" name="phone" placeholder="Tu número de teléfono" required>
+                </div>
+                <div class="form-group">
+                    <label for="message">Mensaje:</label>
+                    <textarea id="message" name="message" rows="5" placeholder="Escribe tu mensaje" required></textarea>
+                </div>
+                <div class="form-actions">
+                    <button type="submit" class="btn-submit">Enviar mensaje</button>
+                </div>
+            </form>
+        </div>
+    </section>
+
+    <!-- Mapa de ubicación -->
+    <section class="contact-map">
+        <h3>Ubicación de nuestros paraderos</h3>
+        <div class="map-container">
+            <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d956.8837437799699!2d-71.54086113048176!3d-16.39763451246408!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x91424a5bc9c50901%3A0x51060ec536f82789!2sTambo%20Del%20Solar!5e0!3m2!1ses!2spe!4v1763678443686!5m2!1ses!2spe" 
+                    width="100%" height="400" frameborder="0" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+        </div>
+    </section>
+
+    <!-- Sección de Unidades de Negocios -->
+    <section class="business-units">
+        <span class="section-label-center">NUESTRAS ÁREAS</span>
+        <h3>Unidades de Negocios</h3>
+        <p>Para detalles de contacto de nuestras diferentes unidades de negocios, por favor usa los datos de contacto adicionales a continuación.</p>
+        
+        <div class="units-list">
+            <div class="unit">
+                <div class="unit-icon">
+                    <i class="fas fa-truck"></i>
+                </div>
+                <h4>Unidad de Transporte</h4>
+                <p><strong>Teléfono:</strong> +51 945 678 123</p>
+                <p><strong>Correo:</strong> transporte@stelman.com</p>
+            </div>
+            <div class="unit">
+                <div class="unit-icon">
+                    <i class="fas fa-box"></i>
+                </div>
+                <h4>Unidad de Logística</h4>
+                <p><strong>Teléfono:</strong> +51 945 678 456</p>
+                <p><strong>Correo:</strong> logistica@stelman.com</p>
+            </div>
+            <div class="unit">
+                <div class="unit-icon">
+                    <i class="fas fa-cogs"></i>
+                </div>
+                <h4>Unidad de Mantenimiento</h4>
+                <p><strong>Teléfono:</strong> +51 945 678 789</p>
+                <p><strong>Correo:</strong> mantenimiento@stelman.com</p>
+            </div>
+			<!-- Footer -->
+			<div class="login-footer">
+				© 2025 Sistema de Transporte - San Stelman SA. Todos los derechos reservados.
+			</div>
+
+        </div>
+    </section>
+
+{% endblock %}

@@ -1,0 +1,31 @@
+{% extends "base_supervisor.html" %}
+{% block content %}
+<h1>Choferes</h1>
+{% if choferes %}
+<table class="data-table">
+  <thead><tr><th>ID</th><th>Nombre</th><th>Apellido</th><th>DNI</th><th>Licencia</th><th>Años exp.</th><th>Historial</th><th>Horario</th></tr></thead>
+  <tbody>
+    {% for c in choferes %}
+    <tr>
+      <td>{{ c.id_empleado }}</td>
+      <td>{{ c.nombre or '-' }}</td>
+      <td>{{ c.apellido or '-' }}</td>
+      <td>{{ c.dni or '-' }}</td>
+      <td>{{ c.licencia }}</td>
+      <td>{{ c.años_exp }}</td>
+      <td>{{ c.historial_infracciones }}</td>
+      <td>
+        {% if c.horario_dia %}
+          {{ c.horario_dia }}: {{ c.horario_inicio }} - {{ c.horario_salida }}
+        {% else %}
+          -
+        {% endif %}
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% else %}
+<p>No hay choferes registrados.</p>
+{% endif %}
+{% endblock %}

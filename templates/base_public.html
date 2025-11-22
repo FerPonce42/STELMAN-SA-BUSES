@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Transporte - San Stelman SA</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        /* ===== RESET Y CONFIGURACIÓN BASE ===== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            padding-top: 80px; /* Espacio para la navbar fija */
+        }
+
+        /* ===== NAVBAR MEJORADA ===== */
+        .topbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            background-color: #2c3e50;
+            box-shadow: 0 2px 15px rgba(0, 0, 0, 0.3);
+            z-index: 1000;
+        }
+
+        .topbar .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 40px;
+            height: 80px;
+        }
+
+        /* Logo mejorado */
+        .topbar-logo-link {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            text-decoration: none;
+            transition: transform 0.3s ease;
+        }
+
+        .topbar-logo-link:hover {
+            transform: translateY(-2px);
+        }
+
+        .topbar-logo {
+            width: 50px;
+            height: 50px;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(245, 185, 66, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        .topbar-logo:hover {
+            box-shadow: 0 6px 15px rgba(245, 185, 66, 0.5);
+        }
+
+        /* Contenedor de navegación */
+        .nav-rect {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+        }
+
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 25px;
+            color: #fff;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.95rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            transition: all 0.3s ease;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+
+        .nav-item:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+            color: #f5b942;
+        }
+
+        /* Dropdown de rutas mejorado */
+        .nav-rutas {
+            position: relative;
+        }
+
+        .nav-rutas > a {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: inherit;
+            text-decoration: none;
+        }
+
+        .nav-rutas > a::after {
+            content: '\f078';
+            font-family: 'Font Awesome 6 Free';
+            font-weight: 900;
+            font-size: 0.7rem;
+            transition: transform 0.3s ease;
+        }
+
+        .nav-rutas:hover > a::after {
+            transform: rotate(180deg);
+        }
+
+        .dropdown-content {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            background-color: #fff;
+            min-width: 250px;
+            border-radius: 8px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-10px);
+            transition: all 0.3s ease;
+            margin-top: 10px;
+            overflow: hidden;
+        }
+
+        .nav-rutas:hover .dropdown-content {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
+        .dropdown-content::before {
+            content: '';
+            position: absolute;
+            top: -8px;
+            left: 30px;
+            width: 0;
+            height: 0;
+            border-left: 8px solid transparent;
+            border-right: 8px solid transparent;
+            border-bottom: 8px solid #fff;
+        }
+
+        .dropdown-content a {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 15px 20px;
+            color: #2c3e50;
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 0.95rem;
+            text-transform: none;
+            letter-spacing: normal;
+            border-bottom: 1px solid #f0f0f0;
+            transition: all 0.3s ease;
+        }
+
+        .dropdown-content a:last-child {
+            border-bottom: none;
+        }
+
+        .dropdown-content a::before {
+            content: '\f207';
+            font-family: 'Font Awesome 6 Free';
+            font-weight: 900;
+            width: 35px;
+            height: 35px;
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #f5b942;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .dropdown-content a:hover {
+            background-color: #f8f9fa;
+            padding-left: 25px;
+        }
+
+        .dropdown-content a:hover::before {
+            background-color: #f5b942;
+            color: #fff;
+            transform: scale(1.1);
+        }
+
+        /* Botón Modo Supervisores */
+        .nav-super-box {
+            margin-left: 20px;
+        }
+
+        .nav-supervisor {
+            background: linear-gradient(135deg, #f5b942 0%, #f7c95c 100%) !important;
+            color: #1a2b4a !important;
+            font-weight: 700 !important;
+            box-shadow: 0 4px 10px rgba(245, 185, 66, 0.3);
+        }
+
+        .nav-supervisor:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(245, 185, 66, 0.5);
+            background: linear-gradient(135deg, #f7c95c 0%, #f5b942 100%) !important;
+        }
+
+        /* Toggle para móvil */
+        .mobile-menu-toggle {
+            display: none;
+            background: none;
+            border: none;
+            color: #fff;
+            font-size: 1.5rem;
+            cursor: pointer;
+            padding: 10px;
+        }
+
+        /* ===== MAIN CONTENT ===== */
+        main {
+            min-height: calc(100vh - 80px);
+        }
+
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 1024px) {
+            .topbar .container {
+                padding: 0 30px;
+            }
+
+            .nav-item {
+                padding: 12px 18px;
+                font-size: 0.9rem;
+            }
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding-top: 70px;
+            }
+
+            .topbar .container {
+                height: 70px;
+                padding: 0 20px;
+            }
+
+            .topbar-logo {
+                width: 45px;
+                height: 45px;
+            }
+
+            .mobile-menu-toggle {
+                display: block;
+                order: 3;
+            }
+
+            .nav-rect {
+                position: fixed;
+                top: 70px;
+                left: -100%;
+                width: 100%;
+                height: calc(100vh - 70px);
+                background-color: #2c3e50;
+                transition: left 0.3s ease;
+                overflow-y: auto;
+                z-index: 999;
+            }
+
+            .nav-rect.active {
+                left: 0;
+            }
+
+            .nav-links {
+                flex-direction: column;
+                align-items: stretch;
+                padding: 20px;
+                gap: 0;
+            }
+
+            .nav-item {
+                width: 100%;
+                padding: 15px 20px;
+                margin-bottom: 5px;
+            }
+
+            .nav-rutas {
+                width: 100%;
+            }
+
+            .nav-rutas > a::after {
+                margin-left: auto;
+            }
+
+            .dropdown-content {
+                position: static;
+                opacity: 1;
+                visibility: visible;
+                transform: none;
+                box-shadow: none;
+                margin-top: 5px;
+                margin-left: 20px;
+                background-color: rgba(255, 255, 255, 0.05);
+                max-height: 0;
+                overflow: hidden;
+                transition: max-height 0.3s ease;
+            }
+
+            .nav-rutas:hover .dropdown-content,
+            .nav-rutas.active .dropdown-content {
+                max-height: 500px;
+            }
+
+            .dropdown-content::before {
+                display: none;
+            }
+
+            .dropdown-content a {
+                color: #fff;
+                padding: 12px 15px;
+                border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            }
+
+            .dropdown-content a:hover {
+                background-color: rgba(255, 255, 255, 0.1);
+                padding-left: 20px;
+            }
+
+            .dropdown-content a::before {
+                background-color: rgba(255, 255, 255, 0.1);
+            }
+
+            .nav-super-box {
+                position: fixed;
+                bottom: 20px;
+                left: 20px;
+                right: 20px;
+                margin: 0;
+                padding: 0 20px;
+                z-index: 1000;
+            }
+
+            .nav-supervisor {
+                width: 100%;
+                justify-content: center;
+                padding: 15px 20px !important;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .topbar .container {
+                padding: 0 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<header class="topbar">
+    <div class="container">
+        <a href="/" class="topbar-logo-link">
+            <img src="{{ url_for('static', filename='imgs/SA.svg') }}" alt="Logo San Stelman SA" class="topbar-logo"
+                 onerror="this.onerror=null;this.src='data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%22100%22 height=%22100%22><rect width=%22100%22 height=%22100%22 fill=%22%23f5b942%22/><text x=%2250%25%22 y=%2250%25%22 fill=%22%231a2b4a%22 font-size=%2236%22 font-family=%22Arial%22 font-weight=%22bold%22 text-anchor=%22middle%22 dominant-baseline=%22central%22>SA</text></svg>'">
+        </a>
+
+        <!-- Toggle para móvil -->
+        <button class="mobile-menu-toggle" onclick="toggleMobileMenu()">
+            <i class="fas fa-bars"></i>
+        </button>
+
+        <div class="nav-rect" id="navRect">
+            <nav class="nav-links">
+                <a class="nav-item" href="/">
+                    <i class="fas fa-home"></i>
+                    Inicio
+                </a>
+                
+                <!-- Dropdown de Rutas -->
+                <div class="nav-item nav-rutas" onclick="toggleDropdownMobile(event)">
+                    <a href="javascript:void(0)">
+                        <i class="fas fa-route"></i>
+                        Rutas
+                    </a>
+                    <div class="dropdown-content">
+                        <a href="/rutas?letra=F" data-route="F">Ruta F</a>
+                        <a href="/rutas?letra=S" data-route="S">Ruta S</a>
+                        <a href="/rutas?letra=N" data-route="N">Ruta N</a>
+                        <a href="/rutas?letra=M" data-route="M">Ruta M</a>
+                    </div>
+                </div>
+                
+                <a class="nav-item" href="/contac">
+                    <i class="fas fa-envelope"></i>
+                    Contacto
+                </a>
+            </nav>
+        </div>
+
+        <!-- Modo Supervisores -->
+        <div class="nav-super-box">
+            <a class="nav-item nav-supervisor" href="/login">
+                <i class="fas fa-user-shield"></i>
+                Modo Supervisores
+            </a>
+        </div>
+    </div>
+</header>
+
+<main>
+    {% block content %}{% endblock %}
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    // Toggle menú móvil
+    function toggleMobileMenu() {
+        const navRect = document.getElementById('navRect');
+        const toggle = document.querySelector('.mobile-menu-toggle i');
+        
+        navRect.classList.toggle('active');
+        
+        if (navRect.classList.contains('active')) {
+            toggle.classList.remove('fa-bars');
+            toggle.classList.add('fa-times');
+        } else {
+            toggle.classList.remove('fa-times');
+            toggle.classList.add('fa-bars');
+        }
+    }
+
+    // Toggle dropdown en móvil
+    function toggleDropdownMobile(event) {
+        if (window.innerWidth <= 768) {
+            event.currentTarget.classList.toggle('active');
+        }
+    }
+
+    // Cerrar menú al hacer click fuera
+    document.addEventListener('click', function(event) {
+        const navRect = document.getElementById('navRect');
+        const toggle = document.querySelector('.mobile-menu-toggle');
+        
+        if (navRect && toggle && !navRect.contains(event.target) && !toggle.contains(event.target)) {
+            navRect.classList.remove('active');
+            const icon = toggle.querySelector('i');
+            if (icon) {
+                icon.classList.remove('fa-times');
+                icon.classList.add('fa-bars');
+            }
+        }
+    });
+
+    // Funcionalidad de rutas - Cerrar menú móvil al hacer click
+    document.addEventListener('DOMContentLoaded', function () {
+        const routeLinks = document.querySelectorAll('.dropdown-content a');
+        
+        routeLinks.forEach(link => {
+            link.addEventListener('click', function (e) {
+                // Cerrar menú móvil después de seleccionar ruta
+                if (window.innerWidth <= 768) {
+                    const navRect = document.getElementById('navRect');
+                    navRect.classList.remove('active');
+                    const icon = document.querySelector('.mobile-menu-toggle i');
+                    if (icon) {
+                        icon.classList.remove('fa-times');
+                        icon.classList.add('fa-bars');
+                    }
+                }
+            });
+        });
+
+        // Resaltar página actual
+        const currentPage = window.location.pathname;
+        document.querySelectorAll('.nav-item').forEach(link => {
+            if (link.getAttribute('href') === currentPage) {
+                link.style.backgroundColor = 'rgba(255, 255, 255, 0.1)';
+                link.style.color = '#f5b942';
+            }
+        });
+    });
+</script>
+
+</body>
+</html>

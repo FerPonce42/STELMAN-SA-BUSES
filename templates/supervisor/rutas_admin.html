@@ -1,0 +1,22 @@
+{% extends "base_supervisor.html" %}
+{% block content %}
+<h1>Gestión de rutas</h1>
+{% if rutas %}
+<table class="data-table">
+	<thead><tr><th>ID</th><th>Letra</th><th>Distancia</th><th>Duración</th><th># Paraderos</th></tr></thead>
+	<tbody>
+		{% for rt in rutas %}
+		<tr>
+			<td>{{ rt.id_ruta }}</td>
+			<td>{{ rt.letra }}</td>
+			<td>{{ rt.distacia }}</td>
+			<td>{{ rt.duracion }}</td>
+			<td>{{ rt.paraderos }}</td>
+		</tr>
+		{% endfor %}
+	</tbody>
+</table>
+{% else %}
+<p>No hay rutas definidas.</p>
+{% endif %}
+{% endblock %}

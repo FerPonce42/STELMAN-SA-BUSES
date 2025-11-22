@@ -1,0 +1,215 @@
+{% extends "base_public.html" %}
+
+{% block content %}
+<!-- Sección de bienvenida -->
+<section class="hero">
+    <div class="hero-background">
+        <span class="section-label-light">BIENVENIDOS</span>
+        <h1>Bienvenido al sistema de transporte</h1>
+        <p>Consulta rutas, horarios y novedades de San Stelman SA.</p>
+    </div>
+</section>
+
+<!-- Sección de Horarios -->
+<section class="features">
+    <span class="section-label-center">NUESTROS HORARIOS</span>
+    <h3>Horarios</h3>
+    {% if horarios and horarios|length > 0 %}
+        <ul>
+            {% for h in horarios %}
+                <li>
+                    <div class="clock-icon">
+                        <i class="fas fa-clock"></i>
+                    </div>
+                    <span>{{ h.dia_semana }}</span>
+                    <p>Inicio: {{ h.hora_inicio }} | Salida: {{ h.hora_salida }}</p>
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>No hay horarios disponibles por ahora.</p>
+    {% endif %}
+</section>
+
+<!-- Sección de Servicios -->
+<section class="services">
+    <span class="section-label-center">LO QUE OFRECEMOS</span>
+    <h2>Servicios de Buses San Stelman</h2>
+    <p>Si necesitas un servicio de transporte confiable y eficiente, ¡tenemos la solución!</p>
+    
+    <div class="services-cards">
+        <div class="service-card">
+            <i class="fas fa-bus"></i>
+            <h3>Transporte de Personal</h3>
+            <p>Ofrecemos transporte seguro y puntual para el personal de empresas, garantizando comodidad y eficacia en cada viaje.</p>
+            <a href="#">Ver Más</a>
+        </div>
+
+        <div class="service-card">
+            <i class="fas fa-truck"></i>
+            <h3>Transporte de Carga</h3>
+            <p>Contamos con vehículos especializados para el transporte de carga pesada y liviana, adaptados a todas tus necesidades logísticas.</p>
+            <a href="#">Ver Más</a>
+        </div>
+
+        <div class="service-card">
+            <i class="fas fa-globe"></i>
+            <h3>Servicio Nacional e Internacional</h3>
+            <p>Conectamos ciudades del Perú y otros países, ofreciendo rutas directas y seguras para tus viajes largos.</p>
+            <a href="#">Ver Más</a>
+        </div>
+    </div>
+</section>
+
+<!-- Sección AQP BOX -->
+<section class="services-aqp">
+    <div class="services-content">
+        <span class="section-label-light">COMPRAS INTERNACIONALES</span>
+        <h2>Trae tus compras desde...</h2>
+        <h3>AQP BOX</h3>
+        <p>¿Sabías que puedes comprar desde cualquier parte del mundo?... ¡y lo traemos por ti!</p>
+        <a href="#" class="btn-vermas">VER MÁS</a>
+    </div>
+</section>
+
+<!-- Características Principales -->
+<section class="main-features">
+    <div class="section-header">
+        <span class="section-label-center">¿POR QUÉ ELEGIRNOS?</span>
+        <h2 class="section-title">Características Principales de Buses San Stelman</h2>
+    </div>
+    
+    <div class="feature-item">
+        <div class="icon-container">
+            <i class="fas fa-bus"></i>
+        </div>
+        <h3>Transporte Seguro</h3>
+        <p>Brindamos un servicio de transporte seguro para todo tipo de pasajeros, con la mejor calidad y puntualidad en cada viaje.</p>
+    </div>
+
+    <div class="feature-item">
+        <div class="icon-container">
+            <i class="fas fa-route"></i>
+        </div>
+        <h3>Rutas Flexibles</h3>
+        <p>Contamos con rutas dinámicas adaptadas a las necesidades de los pasajeros y la cobertura de diversas zonas de la ciudad.</p>
+    </div>
+
+    <div class="feature-item">
+        <div class="icon-container">
+            <i class="fas fa-cogs"></i>
+        </div>
+        <h3>Mantenimiento Continuo</h3>
+        <p>Realizamos un mantenimiento preventivo de todas nuestras unidades para asegurar el mejor desempeño y seguridad.</p>
+    </div>
+</section>
+
+<!-- Preguntas Frecuentes -->
+<section class="faq">
+    <div class="faq-header">
+        <span class="section-label">PREGUNTAS Y RESPUESTAS</span>
+    </div>
+    
+    <div class="faq-container">
+        <!-- Preguntas Frecuentes -->
+        <div class="faq-left">
+            <h2>Preguntas frecuentes</h2>
+            
+            <div class="faq-item active">
+                <div class="faq-question" onclick="toggleFaq(this)">
+                    <h3>¿Qué tipo de servicio realiza AQP EXPRESS?</h3>
+                    <span class="icon">+</span>
+                </div>
+                <div class="faq-answer">
+                    <p>Realizamos servicios de almacenaje de Courier y Carga internacional.</p>
+                </div>
+            </div>
+            
+            <div class="faq-item">
+                <div class="faq-question" onclick="toggleFaq(this)">
+                    <h3>¿Cuál es su cobertura?</h3>
+                    <span class="icon">+</span>
+                </div>
+                <div class="faq-answer">
+                    <p>Contamos con cobertura a nivel nacional e internacional, llegando a los principales destinos del mundo.</p>
+                </div>
+            </div>
+            
+            <div class="faq-item">
+                <div class="faq-question" onclick="toggleFaq(this)">
+                    <h3>¿Puedo importar cualquier tipo de mercancía?</h3>
+                    <span class="icon">+</span>
+                </div>
+                <div class="faq-answer">
+                    <p>Sí, importamos diversos tipos de mercancía siguiendo las regulaciones aduaneras vigentes.</p>
+                </div>
+            </div>
+            
+            <div class="faq-item">
+                <div class="faq-question" onclick="toggleFaq(this)">
+                    <h3>¿Cuánto tiempo demora el envío?</h3>
+                    <span class="icon">+</span>
+                </div>
+                <div class="faq-answer">
+                    <p>El tiempo de entrega varía según el destino, generalmente entre 5 a 15 días hábiles.</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Por qué escogernos -->
+        <div class="why-choose-us">
+            <div class="why-choose-us-header">
+                <h2>¿Por qué escogernos?</h2>
+            </div>
+            
+            <ul class="why-choose-us-list">
+                <li>
+                    <div class="check-icon">✓</div>
+                    <div class="content">
+                        <h4>Ubicaciones mundiales</h4>
+                        <p>Presencia Internacional.</p>
+                    </div>
+                </li>
+                <li>
+                    <div class="check-icon">✓</div>
+                    <div class="content">
+                        <h4>Calidad y compromiso</h4>
+                        <p>Es nuestra misión diaria respecto al compromiso que tenemos con todos nuestros clientes.</p>
+                    </div>
+                </li>
+                <li>
+                    <div class="check-icon">✓</div>
+                    <div class="content">
+                        <h4>Solución de extremo a extremo disponible</h4>
+                        <p>Aumentar orgánicamente la visión global holística de la innovación disruptiva.</p>
+                    </div>
+                </li>
+                <li>
+                    <div class="check-icon">✓</div>
+                    <div class="content">
+                        <h4>Atención al cliente 24/7</h4>
+                        <p>Estamos disponibles para ti en cualquier momento del día.</p>
+                    </div>
+                </li>
+            </ul>
+        </div>
+    </div>
+
+</section>
+
+<script>
+function toggleFaq(element) {
+    const faqItem = element.parentElement;
+    const allItems = document.querySelectorAll('.faq-item');
+    
+    allItems.forEach(item => {
+        if (item !== faqItem) {
+            item.classList.remove('active');
+        }
+    });
+    
+    faqItem.classList.toggle('active');
+}
+</script>
+
+{% endblock %}
