@@ -1,18 +1,143 @@
 {% extends "base_supervisor.html" %}
 {% block content %}
-<h2>Editar {{ entidad }} (ID {{ registro[pk] }})</h2>
-{% if mensaje %}
-<div class="alert alert-info">{{ mensaje }}</div>
-{% endif %}
+<div class="editar-container">
+    <h2>Editar {{ entidad }} {% if registro %}(ID {{ registro[pk] }}){% endif %}</h2>
 
+    {% if mensaje %}
+    <div class="alerta">{{ mensaje }}</div>
+    {% endif %}
 
-<form method="POST">
-    <label>Consulta SQL:</label>
-    <textarea name="sql" class="form-control" rows="5" required></textarea>
+    <form method="POST" class="form-editar">
+        <label for="sql">Consulta SQL:</label>
+        <textarea id="sql" name="sql" rows="5" placeholder="Escribe tu consulta aquí..." required></textarea>
+        <button type="submit">Ejecutar SQL</button>
+    </form>
 
-    <button type="submit" class="btn btn-primary mt-3">Ejecutar SQL</button>
-</form>
+    {% if resultados %}
+    <div class="tabla-container">
+        <table>
+            <thead>
+                <tr>
+                    {% for col in resultados[0].keys() %}
+                    <th>{{ col }}</th>
+                    {% endfor %}
+                </tr>
+            </thead>
+            <tbody>
+                {% for row in resultados %}
+                <tr>
+                    {% for val in row.values() %}
+                    <td>{{ val }}</td>
+                    {% endfor %}
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% endif %}
 
+    <a href="/supervisor/buses" class="btn-volver">Volver</a>
+</div>
 
-<a href="/supervisor/{{ entidad }}" class="btn btn-secondary mt-3">Volver</a>
+<style>
+.editar-container {
+    background: #f5f5f5;
+    padding: 20px 30px;
+    border-radius: 15px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+    max-width: 900px;
+    margin: 20px auto;
+    font-family: 'Segoe UI', sans-serif;
+}
+
+.editar-container h2 {
+    margin-bottom: 20px;
+    color: #2c3e50;
+}
+
+.alerta {
+    background: #fffae6;
+    border-left: 6px solid #ffc107;
+    padding: 10px 15px;
+    margin-bottom: 20px;
+    color: #5a4d00;
+    border-radius: 5px;
+}
+
+.form-editar label {
+    font-weight: bold;
+    display: block;
+    margin-bottom: 5px;
+}
+
+.form-editar textarea {
+    width: 100%;
+    padding: 10px;
+    font-family: monospace;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    margin-bottom: 10px;
+    resize: vertical;
+}
+
+.form-editar button {
+    background: #2c3e50;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: 0.3s;
+}
+
+.form-editar button:hover {
+    background: #34495e;
+}
+
+.tabla-container {
+    overflow-x: auto;
+    margin-top: 20px;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+th, td {
+    padding: 12px 15px;
+    border: 1px solid #ddd;
+    text-align: center;
+}
+
+thead {
+    background: #2c3e50;
+    color: #fff;
+}
+
+tbody tr:nth-child(odd) {
+    background: #f2f2f2;
+}
+
+tbody tr:hover {
+    background: #d6e4ff;
+}
+
+.btn-volver {
+    display: inline-block;
+    margin-top: 20px;
+    background: #ffc107;
+    color: #2c3e50;
+    text-decoration: none;
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-weight: bold;
+    transition: 0.3s;
+}
+
+.btn-volver:hover {
+    background: #ffca2c;
+}
+</style>
 {% endblock %}

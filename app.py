@@ -533,90 +533,122 @@ PK_MAP = {
 }
 
 
-
 @app.route('/ejecutar_sql', methods=['POST'])
 def ejecutar_sql():
-    sql = request.form.get("sql")
-    id_entidad = request.form.get("id_entidad")
+    if "supervisor" not in session:
+        return redirect("/login")
 
+    sql = request.form.get("sql")
     mensaje = ""
+    resultados = []
+
+    sql_upper = sql.strip().upper()
+
+    # Validaciones de seguridad
+    if not sql_upper.startswith(("SELECT", "UPDATE", "DELETE", "INSERT")):
+        return "Solo puedes ejecutar SELECT, UPDATE, DELETE o INSERT"
+    if any(bad in sql_upper for bad in ("DROP", "ALTER", "TRUNCATE", "CREATE", "EXEC", ";--")):
+        return "Comando SQL bloqueado por seguridad"
+
     try:
         conn = get_connection()
-        cursor = conn.cursor()
-        cursor.execute(sql)
-        conn.commit()
-        mensaje = "Consulta ejecutada correctamente."
+        cursor = conn.cursor(dictionary=True)
+
+        # --- Aplicar filtro de ruta automáticamente para supervisores ---
+        # Tablas que deben filtrarse por ruta
+        tablas_filtradas = ["BUS", "EMPLEADO", "CHOFER", "COBRADOR"]
+
+        ruta_id = session.get("route_id")
+        agregar_filtro = False
+
+        # Solo si es SELECT y hay ruta definida
+        if sql_upper.startswith("SELECT") and ruta_id:
+            for tabla in tablas_filtradas:
+                if f"FROM {tabla}" in sql_upper:
+                    agregar_filtro = True
+                    break
+            if agregar_filtro:
+                if "WHERE" in sql_upper:
+                    sql += " AND id_ruta = %s"
+                else:
+                    sql += " WHERE id_ruta = %s"
+                cursor.execute(sql, (ruta_id,))
+            else:
+                cursor.execute(sql)
+        else:
+            # Para UPDATE, DELETE, INSERT
+            cursor.execute(sql)
+            if sql_upper.startswith(("UPDATE", "DELETE", "INSERT")):
+                # Si se filtrara por ruta, se podría aplicar lógica similar
+                conn.commit()
+
+        if sql_upper.startswith("SELECT"):
+            resultados = cursor.fetchall()
+            mensaje = f"{len(resultados)} registros encontrados."
+        else:
+            mensaje = "Consulta ejecutada correctamente."
+
     except Exception as e:
-        mensaje = f"Error al ejecutar SQL: {e}"
+        conn.rollback()
+        mensaje = f"Error al ejecutar SQL: {str(e)}"
     finally:
         cursor.close()
         conn.close()
 
-    # Recargar lista de buses filtrados por ruta
-    conn = get_connection()
-    cursor = conn.cursor(dictionary=True)
-    if session.get('route_id'):
-        cursor.execute("""
-            SELECT b.*, r.letra AS ruta_letra, e.nombre AS encargado_nombre, e.apellido AS encargado_apellido
-            FROM bus b
-            LEFT JOIN ruta r ON b.id_ruta = r.id_ruta
-            LEFT JOIN empleado e ON b.id_empleado = e.id_empleado
-            WHERE b.id_ruta=%s
-            ORDER BY b.id_bus
-        """, (session['route_id'],))
-    else:
-        cursor.execute("""
-            SELECT b.*, r.letra AS ruta_letra, e.nombre AS encargado_nombre, e.apellido AS encargado_apellido
-            FROM bus b
-            LEFT JOIN ruta r ON b.id_ruta = r.id_ruta
-            LEFT JOIN empleado e ON b.id_empleado = e.id_empleado
-            ORDER BY b.id_bus
-        """)
-    buses = cursor.fetchall()
-    cursor.close()
-    conn.close()
-
-    return render_template("supervisor/buses.html",
-                           supervisor=session["supervisor"],
-                           buses=buses,
-                           mensaje=mensaje)
+    return render_template(
+        "supervisor/editar_entidad.html",
+        supervisor=session["supervisor"],
+        entidad="bus",  # o la entidad correspondiente
+        registro=None,
+        pk=None,
+        mensaje=mensaje,
+        resultados=resultados
+    )
 
 
-
-@app.route("/supervisor/editar/<entidad>/<int:entidad_id>", methods=["GET", "POST"])
-def editar_entidad(entidad, entidad_id):
+@app.route("/supervisor/editar/<entidades>/<int:registro_id>", methods=["GET", "POST"])
+def editar_entidades(entidades, registro_id):
+    """
+    Permite editar 1, 2 o 3 entidades juntas mediante SQL puro.
+    `entidades` puede ser:
+        - "bus"
+        - "empleado,bus"
+        - "empleado,bus,regstro_caja"
+    `registro_id` es el ID principal de la primera entidad.
+    """
     if "supervisor" not in session:
         return redirect("/login")
 
-    if entidad not in ALLOWED_ENTITY_TABLES:
-        return "Entidad no válida"
+    # Separar entidades
+    lista_entidades = [e.strip() for e in entidades.split(",")]
 
-    tabla = ALLOWED_ENTITY_TABLES[entidad]
-    pk = PK_MAP[entidad]
+    # Validar que todas existan
+    for e in lista_entidades:
+        if e not in ALLOWED_ENTITY_TABLES:
+            return f"Entidad no válida: {e}"
+
+    # Obtenemos la tabla principal
+    tabla_principal = ALLOWED_ENTITY_TABLES[lista_entidades[0]]
+    pk_principal = PK_MAP[lista_entidades[0]]
 
     conn = get_connection()
     cursor = conn.cursor(dictionary=True)
 
-    # obtener registro actual
-    cursor.execute(f"SELECT * FROM {tabla} WHERE {pk} = %s", (entidad_id,))
+    # Obtener registro principal
+    cursor.execute(f"SELECT * FROM {tabla_principal} WHERE {pk_principal} = %s", (registro_id,))
     registro = cursor.fetchone()
-
-    # validar que pertenece a la ruta del supervisor
-    if session.get('route_id') and 'id_ruta' in registro and registro['id_ruta'] != session['route_id']:
-        cursor.close()
-        conn.close()
-        return "No puedes editar registros fuera de tu ruta"
 
     if request.method == "POST":
         sql = request.form["sql"]
         sql_upper = sql.upper()
 
+        # Validaciones de seguridad
         if not sql_upper.startswith(ALLOWED_SQL_START):
             return "Solo puedes ejecutar UPDATE, DELETE o INSERT"
-
         if any(bad in sql_upper for bad in FORBIDDEN_WORDS):
             return "Comando SQL bloqueado por seguridad"
 
+        # Ejecutar SQL
         try:
             cursor2 = conn.cursor()
             cursor2.execute(sql)
@@ -631,12 +663,15 @@ def editar_entidad(entidad, entidad_id):
         conn.close()
         return mensaje
 
+    # Si es GET, mostramos el registro y la lista de entidades
     cursor.close()
     conn.close()
-    return render_template("supervisor/editar_entidad.html",
-                           entidad=entidad,
-                           registro=registro,
-                           pk=pk)
+    return render_template(
+        "supervisor/editar_entidad.html",
+        entidades=lista_entidades,
+        registro=registro,
+        pk=pk_principal
+    )
 
     
     
