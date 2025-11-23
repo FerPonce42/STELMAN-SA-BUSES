@@ -309,25 +309,30 @@ def supervisor_caja():
     cursor = conn.cursor(dictionary=True)
     if session.get('route_id'):
         cursor.execute(
-            "SELECT rc.*, e.nombre AS empleado_nombre, e.apellido AS empleado_apellido, r.letra AS ruta_letra "
-            "FROM regstro_caja rc "
-            "LEFT JOIN empleado e ON rc.id_empleado = e.id_empleado "
-            "LEFT JOIN ruta r ON rc.id_ruta = r.id_ruta "
-            "WHERE rc.id_ruta=%s "
-            "ORDER BY rc.fecha_recaudacion DESC", (session['route_id'],)
+            """
+            SELECT rc.*, e.nombre AS empleado_nombre, e.apellido AS empleado_apellido, r.letra AS ruta_letra
+            FROM regstro_caja rc
+            LEFT JOIN empleado e ON rc.id_empleado = e.id_empleado
+            LEFT JOIN ruta r ON rc.id_ruta = r.id_ruta
+            WHERE rc.id_ruta=%s
+            ORDER BY rc.fecha_recaudacion DESC
+            """, (session['route_id'],)
         )
     else:
         cursor.execute(
-            "SELECT rc.*, e.nombre AS empleado_nombre, e.apellido AS empleado_apellido, r.letra AS ruta_letra "
-            "FROM regstro_caja rc "
-            "LEFT JOIN empleado e ON rc.id_empleado = e.id_empleado "
-            "LEFT JOIN ruta r ON rc.id_ruta = r.id_ruta "
-            "ORDER BY rc.fecha_recaudacion DESC"
+            """
+            SELECT rc.*, e.nombre AS empleado_nombre, e.apellido AS empleado_apellido, r.letra AS ruta_letra
+            FROM regstro_caja rc
+            LEFT JOIN empleado e ON rc.id_empleado = e.id_empleado
+            LEFT JOIN ruta r ON rc.id_ruta = r.id_ruta
+            ORDER BY rc.fecha_recaudacion DESC
+            """
         )
     cajas = cursor.fetchall()
     cursor.close()
     conn.close()
     return render_template("supervisor/caja.html", supervisor=session["supervisor"], cajas=cajas)
+
 
 
 @app.route("/supervisor/empleados")
@@ -338,27 +343,32 @@ def supervisor_empleados():
     cursor = conn.cursor(dictionary=True)
     if session.get('route_id'):
         cursor.execute(
-            "SELECT DISTINCT e.*, h.dia_semana AS horario_dia, h.hora_inicio AS horario_inicio, h.hora_salida AS horario_salida "
-            "FROM empleado e "
-            "LEFT JOIN hrrio_empleado he ON e.id_empleado = he.id_empleado "
-            "LEFT JOIN horario h ON he.id_horario = h.id_horario "
-            "LEFT JOIN bus b ON e.id_empleado = b.id_empleado "
-            "LEFT JOIN regstro_caja rc ON e.id_empleado = rc.id_empleado "
-            "WHERE (b.id_ruta=%s OR rc.id_ruta=%s) "
-            "ORDER BY e.id_empleado", (session['route_id'], session['route_id'])
+            """
+            SELECT DISTINCT e.*, h.dia_semana AS horario_dia, h.hora_inicio AS horario_inicio, h.hora_salida AS horario_salida
+            FROM empleado e
+            LEFT JOIN hrrio_empleado he ON e.id_empleado = he.id_empleado
+            LEFT JOIN horario h ON he.id_horario = h.id_horario
+            LEFT JOIN bus b ON e.id_empleado = b.id_empleado
+            LEFT JOIN regstro_caja rc ON e.id_empleado = rc.id_empleado
+            WHERE (b.id_ruta=%s OR rc.id_ruta=%s)
+            ORDER BY e.id_empleado
+            """, (session['route_id'], session['route_id'])
         )
     else:
         cursor.execute(
-            "SELECT e.*, h.dia_semana AS horario_dia, h.hora_inicio AS horario_inicio, h.hora_salida AS horario_salida "
-            "FROM empleado e "
-            "LEFT JOIN hrrio_empleado he ON e.id_empleado = he.id_empleado "
-            "LEFT JOIN horario h ON he.id_horario = h.id_horario "
-            "ORDER BY e.id_empleado"
+            """
+            SELECT e.*, h.dia_semana AS horario_dia, h.hora_inicio AS horario_inicio, h.hora_salida AS horario_salida
+            FROM empleado e
+            LEFT JOIN hrrio_empleado he ON e.id_empleado = he.id_empleado
+            LEFT JOIN horario h ON he.id_horario = h.id_horario
+            ORDER BY e.id_empleado
+            """
         )
     empleados = cursor.fetchall()
     cursor.close()
     conn.close()
     return render_template("supervisor/empleados.html", supervisor=session["supervisor"], empleados=empleados)
+
 
 
 @app.route("/supervisor/empleados/choferes")
@@ -369,28 +379,33 @@ def supervisor_choferes():
     cursor = conn.cursor(dictionary=True)
     if session.get('route_id'):
         cursor.execute(
-            "SELECT DISTINCT c.*, e.nombre, e.apellido, e.dni, h.dia_semana AS horario_dia, h.hora_inicio AS horario_inicio, h.hora_salida AS horario_salida "
-            "FROM chofer c "
-            "LEFT JOIN empleado e ON c.id_empleado = e.id_empleado "
-            "LEFT JOIN bus b ON b.id_empleado = c.id_empleado "
-            "LEFT JOIN hrrio_empleado he ON e.id_empleado = he.id_empleado "
-            "LEFT JOIN horario h ON he.id_horario = h.id_horario "
-            "WHERE b.id_ruta=%s "
-            "ORDER BY c.id_empleado", (session['route_id'],)
+            """
+            SELECT DISTINCT c.*, e.nombre, e.apellido, e.dni, h.dia_semana AS horario_dia, h.hora_inicio AS horario_inicio, h.hora_salida AS horario_salida
+            FROM chofer c
+            LEFT JOIN empleado e ON c.id_empleado = e.id_empleado
+            LEFT JOIN bus b ON b.id_empleado = c.id_empleado
+            LEFT JOIN hrrio_empleado he ON e.id_empleado = he.id_empleado
+            LEFT JOIN horario h ON he.id_horario = h.id_horario
+            WHERE b.id_ruta=%s
+            ORDER BY c.id_empleado
+            """, (session['route_id'],)
         )
     else:
         cursor.execute(
-            "SELECT c.*, e.nombre, e.apellido, e.dni, h.dia_semana AS horario_dia, h.hora_inicio AS horario_inicio, h.hora_salida AS horario_salida "
-            "FROM chofer c "
-            "LEFT JOIN empleado e ON c.id_empleado = e.id_empleado "
-            "LEFT JOIN hrrio_empleado he ON e.id_empleado = he.id_empleado "
-            "LEFT JOIN horario h ON he.id_horario = h.id_horario "
-            "ORDER BY c.id_empleado"
+            """
+            SELECT c.*, e.nombre, e.apellido, e.dni, h.dia_semana AS horario_dia, h.hora_inicio AS horario_inicio, h.hora_salida AS horario_salida
+            FROM chofer c
+            LEFT JOIN empleado e ON c.id_empleado = e.id_empleado
+            LEFT JOIN hrrio_empleado he ON e.id_empleado = he.id_empleado
+            LEFT JOIN horario h ON he.id_horario = h.id_horario
+            ORDER BY c.id_empleado
+            """
         )
     choferes = cursor.fetchall()
     cursor.close()
     conn.close()
     return render_template("supervisor/choferes.html", supervisor=session["supervisor"], choferes=choferes)
+
 
 
 @app.route("/supervisor/empleados/cobradores")
@@ -399,18 +414,36 @@ def supervisor_cobradores():
         return redirect("/login")
     conn = get_connection()
     cursor = conn.cursor(dictionary=True)
-    # Mostrar todos los cobradores (sin filtrar por ruta)
-    cursor.execute(
-        "SELECT cb.*, e.nombre, e.apellido, e.dni, h.dia_semana AS horario_dia, h.hora_inicio AS horario_inicio, h.hora_salida AS horario_salida FROM cobrador cb "
-        "LEFT JOIN empleado e ON cb.id_empleado = e.id_empleado "
-        "LEFT JOIN hrrio_empleado he ON e.id_empleado = he.id_empleado "
-        "LEFT JOIN horario h ON he.id_horario = h.id_horario "
-        "ORDER BY cb.id_empleado"
-    )
+    if session.get('route_id'):
+        cursor.execute(
+            """
+            SELECT DISTINCT cb.*, e.nombre, e.apellido, e.dni, h.dia_semana AS horario_dia, h.hora_inicio AS horario_inicio, h.hora_salida AS horario_salida
+            FROM cobrador cb
+            LEFT JOIN empleado e ON cb.id_empleado = e.id_empleado
+            LEFT JOIN hrrio_empleado he ON e.id_empleado = he.id_empleado
+            LEFT JOIN horario h ON he.id_horario = h.id_horario
+            LEFT JOIN bus b ON b.id_empleado = cb.id_empleado
+            LEFT JOIN regstro_caja rc ON rc.id_empleado = cb.id_empleado
+            WHERE (b.id_ruta=%s OR rc.id_ruta=%s)
+            ORDER BY cb.id_empleado
+            """, (session['route_id'], session['route_id'])
+        )
+    else:
+        cursor.execute(
+            """
+            SELECT cb.*, e.nombre, e.apellido, e.dni, h.dia_semana AS horario_dia, h.hora_inicio AS horario_inicio, h.hora_salida AS horario_salida
+            FROM cobrador cb
+            LEFT JOIN empleado e ON cb.id_empleado = e.id_empleado
+            LEFT JOIN hrrio_empleado he ON e.id_empleado = he.id_empleado
+            LEFT JOIN horario h ON he.id_horario = h.id_horario
+            ORDER BY cb.id_empleado
+            """
+        )
     cobradores = cursor.fetchall()
     cursor.close()
     conn.close()
     return render_template("supervisor/cobradores.html", supervisor=session["supervisor"], cobradores=cobradores)
+
 
 
 @app.route("/supervisor/incidencias")
@@ -419,15 +452,23 @@ def supervisor_incidencias():
         return redirect("/login")
     conn = get_connection()
     cursor = conn.cursor(dictionary=True)
-    # la tabla en el volcado se llama `incdncia_oprtva`
     if session.get('route_id'):
-        cursor.execute("SELECT i.* FROM incdncia_oprtva i LEFT JOIN bus b ON i.id_bus=b.id_bus WHERE b.id_ruta=%s ORDER BY i.fecha DESC", (session['route_id'],))
+        cursor.execute(
+            """
+            SELECT i.* 
+            FROM incdncia_oprtva i
+            LEFT JOIN bus b ON i.id_bus=b.id_bus
+            WHERE b.id_ruta=%s
+            ORDER BY i.fecha DESC
+            """, (session['route_id'],)
+        )
     else:
         cursor.execute("SELECT * FROM incdncia_oprtva ORDER BY fecha DESC")
     incidencias = cursor.fetchall()
     cursor.close()
     conn.close()
     return render_template("supervisor/incidencias.html", supervisor=session["supervisor"], incidencias=incidencias)
+
 
 
 @app.route("/supervisor/rutas")
@@ -438,21 +479,28 @@ def supervisor_rutas():
     cursor = conn.cursor(dictionary=True)
     if session.get('route_id'):
         cursor.execute(
-            "SELECT r.*, COUNT(p.id_paradero) AS paraderos "
-            "FROM ruta r LEFT JOIN paradero p ON r.id_ruta = p.id_ruta "
-            "WHERE r.id_ruta=%s "
-            "GROUP BY r.id_ruta", (session['route_id'],)
+            """
+            SELECT r.*, COUNT(p.id_paradero) AS paraderos
+            FROM ruta r
+            LEFT JOIN paradero p ON r.id_ruta = p.id_ruta
+            WHERE r.id_ruta=%s
+            GROUP BY r.id_ruta
+            """, (session['route_id'],)
         )
     else:
         cursor.execute(
-            "SELECT r.*, COUNT(p.id_paradero) AS paraderos "
-            "FROM ruta r LEFT JOIN paradero p ON r.id_ruta = p.id_ruta "
-            "GROUP BY r.id_ruta"
+            """
+            SELECT r.*, COUNT(p.id_paradero) AS paraderos
+            FROM ruta r
+            LEFT JOIN paradero p ON r.id_ruta = p.id_ruta
+            GROUP BY r.id_ruta
+            """
         )
     rutas = cursor.fetchall()
     cursor.close()
     conn.close()
     return render_template("supervisor/rutas_admin.html", supervisor=session["supervisor"], rutas=rutas)
+
 
 # Cerrar sesiónnn
 @app.route("/logout")
@@ -504,16 +552,26 @@ def ejecutar_sql():
         cursor.close()
         conn.close()
 
-    # Recargar la lista de buses SIN SALIR de /supervisor/buses
+    # Recargar lista de buses filtrados por ruta
     conn = get_connection()
     cursor = conn.cursor(dictionary=True)
-    cursor.execute("""
-        SELECT b.*, r.letra AS ruta_letra, e.nombre AS encargado_nombre, e.apellido AS encargado_apellido
-        FROM bus b
-        LEFT JOIN ruta r ON b.id_ruta = r.id_ruta
-        LEFT JOIN empleado e ON b.id_empleado = e.id_empleado
-        ORDER BY b.id_bus
-    """)
+    if session.get('route_id'):
+        cursor.execute("""
+            SELECT b.*, r.letra AS ruta_letra, e.nombre AS encargado_nombre, e.apellido AS encargado_apellido
+            FROM bus b
+            LEFT JOIN ruta r ON b.id_ruta = r.id_ruta
+            LEFT JOIN empleado e ON b.id_empleado = e.id_empleado
+            WHERE b.id_ruta=%s
+            ORDER BY b.id_bus
+        """, (session['route_id'],))
+    else:
+        cursor.execute("""
+            SELECT b.*, r.letra AS ruta_letra, e.nombre AS encargado_nombre, e.apellido AS encargado_apellido
+            FROM bus b
+            LEFT JOIN ruta r ON b.id_ruta = r.id_ruta
+            LEFT JOIN empleado e ON b.id_empleado = e.id_empleado
+            ORDER BY b.id_bus
+        """)
     buses = cursor.fetchall()
     cursor.close()
     conn.close()
@@ -522,6 +580,7 @@ def ejecutar_sql():
                            supervisor=session["supervisor"],
                            buses=buses,
                            mensaje=mensaje)
+
 
 
 @app.route("/supervisor/editar/<entidad>/<int:entidad_id>", methods=["GET", "POST"])
@@ -542,18 +601,22 @@ def editar_entidad(entidad, entidad_id):
     cursor.execute(f"SELECT * FROM {tabla} WHERE {pk} = %s", (entidad_id,))
     registro = cursor.fetchone()
 
+    # validar que pertenece a la ruta del supervisor
+    if session.get('route_id') and 'id_ruta' in registro and registro['id_ruta'] != session['route_id']:
+        cursor.close()
+        conn.close()
+        return "No puedes editar registros fuera de tu ruta"
+
     if request.method == "POST":
         sql = request.form["sql"]
         sql_upper = sql.upper()
 
-        # Validaciones simples
         if not sql_upper.startswith(ALLOWED_SQL_START):
             return "Solo puedes ejecutar UPDATE, DELETE o INSERT"
 
         if any(bad in sql_upper for bad in FORBIDDEN_WORDS):
             return "Comando SQL bloqueado por seguridad"
 
-        # ejecutar
         try:
             cursor2 = conn.cursor()
             cursor2.execute(sql)
@@ -574,7 +637,7 @@ def editar_entidad(entidad, entidad_id):
                            entidad=entidad,
                            registro=registro,
                            pk=pk)
-    
+
     
     
 if __name__ == "__main__":
