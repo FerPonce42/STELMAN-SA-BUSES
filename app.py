@@ -1,5 +1,7 @@
 from flask import Flask, render_template, request, redirect, session
 from config import get_connection
+from flask import  url_for, flash
+from config import get_connection
 import re
 
 app = Flask(__name__)
@@ -96,56 +98,62 @@ def contac():
 @app.route("/login", methods=["GET", "POST"])
 def login():
     if request.method == "POST":
-        usuario = request.form["usuario"]
-        clave = request.form["clave"]
+        usuario = request.form.get("usuario")
+        clave = request.form.get("clave")
 
-        conn = get_connection()
-        cursor = conn.cursor(dictionary=True)
-        # En la base de datos el volcado usa columnas USUARIO y CONTRASENA
-        cursor.execute("SELECT * FROM supervisor WHERE USUARIO=%s AND CONTRASENA=%s", (usuario, clave))
-        supervisor = cursor.fetchone()
-        cursor.close()
-        conn.close()
+        try:
+            conn = get_connection()
+            cursor = conn.cursor(dictionary=True)
+            # Asegúrate que las columnas se llamen USUARIO y CONTRASENA en tu BD
+            cursor.execute("SELECT * FROM supervisor WHERE USUARIO=%s AND CONTRASENA=%s", (usuario, clave))
+            supervisor = cursor.fetchone()
+            cursor.close()
+            conn.close()
+        except Exception as e:
+            # error de conexión/consulta
+            return render_template("auth/login.html", error=f"Error de BD: {e}")
 
-        if supervisor:
-            # Guardar datos de supervisor en sesión
-            session["supervisor"] = supervisor
-
-            # Intentar asociar al supervisor con una ruta concreta
-            route_id = None
-            route_letra = None
-            area = supervisor.get('area_encargada') if isinstance(supervisor, dict) else None
-            if area:
-                # Buscar una letra de ruta aislada en el texto (ej. 'Ruta S' -> 'S')
-                m = re.search(r"\b([FSNM])\b", area, re.IGNORECASE)
-                if m:
-                    route_letra = m.group(1).upper()
-                    try:
-                        conn2 = get_connection()
-                        cur2 = conn2.cursor(dictionary=True)
-                        cur2.execute("SELECT id_ruta FROM ruta WHERE letra=%s", (route_letra,))
-                        rr = cur2.fetchone()
-                        if rr:
-                            route_id = rr.get('id_ruta')
-                        cur2.close()
-                        conn2.close()
-                    except Exception:
-                        route_id = None
-
-            # Guardar filtro de ruta en sesión (si se detectó)
-            if route_id:
-                session['route_id'] = route_id
-                session['route_letra'] = route_letra
-                app.logger.info(f"Supervisor {supervisor.get('id_empleado')} assigned to route_id={route_id} letra={route_letra}")
-            else:
-                session.pop('route_id', None)
-                session.pop('route_letra', None)
-                app.logger.info(f"Supervisor {supervisor.get('id_empleado')} has no route assignment parsed from area_encargada={area}")
-            return redirect("/dashboard")
-        else:
-            # Mostrar la plantilla de login con mensaje de error
+        if not supervisor:
             return render_template("auth/login.html", error="Credenciales incorrectas")
 
+        # --- Aquí guardamos en sesión lo necesario para filtrar luego ---
+        # guardamos el objeto completo (útil para mostrar datos)...
+        session["supervisor"] = supervisor
+        # ...y guardamos el id por separado para acceso fácil:
+        session["supervisor_id"] = supervisor.get("id_empleado")  # <-- aquí está el ID
+        # Intentamos extraer/guardar la ruta que supervise (si tu tabla tiene 'area_encargada' o similar)
+        route_id = None
+        route_letra = None
+        area = supervisor.get('area_encargada') if isinstance(supervisor, dict) else None
+        if area:
+            # ejemplo: extraer una letra (ajusta el regex si tu formato es distinto)
+            m = re.search(r"\b([A-Z])\b", area, re.IGNORECASE)
+            if m:
+                route_letra = m.group(1).upper()
+                try:
+                    conn2 = get_connection()
+                    cur2 = conn2.cursor(dictionary=True)
+                    cur2.execute("SELECT id_ruta FROM ruta WHERE letra=%s", (route_letra,))
+                    rr = cur2.fetchone()
+                    if rr:
+                        route_id = rr.get('id_ruta')
+                    cur2.close()
+                    conn2.close()
+                except Exception:
+                    route_id = None
+
+        if route_id:
+            session['route_id'] = route_id
+            session['route_letra'] = route_letra
+        else:
+            # si no tiene ruta, eliminar claves por si acaso
+            session.pop('route_id', None)
+            session.pop('route_letra', None)
+
+        # ya autenticado
+        return redirect("/dashboard")
+
+    # GET -> mostrar formulario
     return render_template("auth/login.html")
 
 
@@ -452,5 +460,122 @@ def logout():
     session.clear()
     return redirect("/")
 
+
+
+
+from datetime import datetime
+
+ALLOWED_ENTITY_TABLES = {
+    "bus": "bus",
+    "empleado": "empleado",
+    "ruta": "ruta",
+    "incidencia": "incdncia_oprtva",
+    "caja": "regstro_caja"
+}
+
+ALLOWED_SQL_START = ("UPDATE", "DELETE", "INSERT")
+FORBIDDEN_WORDS = ("DROP", "ALTER", "TRUNCATE", "CREATE", "EXEC", ";--")
+
+PK_MAP = {
+    "bus": "id_bus",
+    "empleado": "id_empleado",
+    "ruta": "id_ruta",
+    "incidencia": "id_incdncia_oprtva",
+    "caja": "id_regstro_caja"
+}
+
+
+
+@app.route('/ejecutar_sql', methods=['POST'])
+def ejecutar_sql():
+    sql = request.form.get("sql")
+    id_entidad = request.form.get("id_entidad")
+
+    mensaje = ""
+    try:
+        conn = get_connection()
+        cursor = conn.cursor()
+        cursor.execute(sql)
+        conn.commit()
+        mensaje = "Consulta ejecutada correctamente."
+    except Exception as e:
+        mensaje = f"Error al ejecutar SQL: {e}"
+    finally:
+        cursor.close()
+        conn.close()
+
+    # Recargar la lista de buses SIN SALIR de /supervisor/buses
+    conn = get_connection()
+    cursor = conn.cursor(dictionary=True)
+    cursor.execute("""
+        SELECT b.*, r.letra AS ruta_letra, e.nombre AS encargado_nombre, e.apellido AS encargado_apellido
+        FROM bus b
+        LEFT JOIN ruta r ON b.id_ruta = r.id_ruta
+        LEFT JOIN empleado e ON b.id_empleado = e.id_empleado
+        ORDER BY b.id_bus
+    """)
+    buses = cursor.fetchall()
+    cursor.close()
+    conn.close()
+
+    return render_template("supervisor/buses.html",
+                           supervisor=session["supervisor"],
+                           buses=buses,
+                           mensaje=mensaje)
+
+
+@app.route("/supervisor/editar/<entidad>/<int:entidad_id>", methods=["GET", "POST"])
+def editar_entidad(entidad, entidad_id):
+    if "supervisor" not in session:
+        return redirect("/login")
+
+    if entidad not in ALLOWED_ENTITY_TABLES:
+        return "Entidad no válida"
+
+    tabla = ALLOWED_ENTITY_TABLES[entidad]
+    pk = PK_MAP[entidad]
+
+    conn = get_connection()
+    cursor = conn.cursor(dictionary=True)
+
+    # obtener registro actual
+    cursor.execute(f"SELECT * FROM {tabla} WHERE {pk} = %s", (entidad_id,))
+    registro = cursor.fetchone()
+
+    if request.method == "POST":
+        sql = request.form["sql"]
+        sql_upper = sql.upper()
+
+        # Validaciones simples
+        if not sql_upper.startswith(ALLOWED_SQL_START):
+            return "Solo puedes ejecutar UPDATE, DELETE o INSERT"
+
+        if any(bad in sql_upper for bad in FORBIDDEN_WORDS):
+            return "Comando SQL bloqueado por seguridad"
+
+        # ejecutar
+        try:
+            cursor2 = conn.cursor()
+            cursor2.execute(sql)
+            conn.commit()
+            cursor2.close()
+            mensaje = "Consulta ejecutada correctamente."
+        except Exception as e:
+            conn.rollback()
+            mensaje = f"Error SQL: {str(e)}"
+
+        cursor.close()
+        conn.close()
+        return mensaje
+
+    cursor.close()
+    conn.close()
+    return render_template("supervisor/editar_entidad.html",
+                           entidad=entidad,
+                           registro=registro,
+                           pk=pk)
+    
+    
+    
 if __name__ == "__main__":
     app.run(debug=True)

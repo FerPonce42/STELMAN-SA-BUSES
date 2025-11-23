@@ -4,7 +4,7 @@
 {% if buses %}
 <table class="data-table">
 	<thead>
-		<tr><th>ID</th><th>Placa</th><th>Modelo</th><th>Marca</th><th>Año</th><th>Color</th><th>Última revisión</th><th>Ruta</th><th>Encargado</th></tr>
+		<tr><th>ID</th><th>Placa</th><th>Modelo</th><th>Marca</th><th>Año</th><th>Color</th><th>Última revisión</th><th>Ruta</th><th>Encargado</th><th>Acciones</th></tr>
 	</thead>
 	<tbody>
 		{% for b in buses %}
@@ -18,10 +18,66 @@
 			<td>{{ b.ultima_revision }}</td>
 			<td>{{ b.ruta_letra or '-' }}</td>
 			<td>{{ (b.encargado_nombre ~ ' ' ~ b.encargado_apellido).strip() if b.encargado_nombre else '-' }}</td>
+			<td><button class="btn btn-warning btn-sm" onclick="abrirModalEditar('{{ b.id_bus }}')">Editar</button></td>
+
 		</tr>
 		{% endfor %}
 	</tbody>
 </table>
+<!-- Modal para editar -->
+<div id="modalEditar" class="modal" style="display:none;">
+    <div class="modal-content">
+        <span class="close" onclick="cerrarModalEditar()">&times;</span>
+        <h2>Editar Bus</h2>
+
+        <form method="POST" action="/ejecutar_sql">
+            <input type="hidden" id="id_entidad" name="id_entidad">
+
+            <label>Escribe tu consulta SQL:</label>
+            <textarea name="sql" rows="6" style="width:100%;"></textarea>
+
+            <button type="submit" class="btn btn-primary">Ejecutar</button>
+        </form>
+    </div>
+</div>
+
+<style>
+.modal {
+    position: fixed;
+    z-index: 999;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.5);
+}
+
+.modal-content {
+    background: white;
+    margin: 10% auto;
+    padding: 20px;
+    width: 40%;
+    border-radius: 8px;
+}
+
+.close {
+    float: right;
+    font-size: 22px;
+    cursor: pointer;
+}
+</style>
+
+<script>
+function abrirModalEditar(id) {
+    document.getElementById("id_entidad").value = id;
+    document.getElementById("modalEditar").style.display = "block";
+}
+
+function cerrarModalEditar() {
+    document.getElementById("modalEditar").style.display = "none";
+}
+</script>
+
 {% else %}
 <p>No hay buses registrados.</p>
 {% endif %}

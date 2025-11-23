@@ -1,0 +1,18 @@
+{% extends "base_supervisor.html" %}
+{% block content %}
+<h2>Editar {{ entidad }} (ID {{ registro[pk] }})</h2>
+{% if mensaje %}
+<div class="alert alert-info">{{ mensaje }}</div>
+{% endif %}
+
+
+<form method="POST">
+    <label>Consulta SQL:</label>
+    <textarea name="sql" class="form-control" rows="5" required></textarea>
+
+    <button type="submit" class="btn btn-primary mt-3">Ejecutar SQL</button>
+</form>
+
+
+<a href="/supervisor/{{ entidad }}" class="btn btn-secondary mt-3">Volver</a>
+{% endblock %}
