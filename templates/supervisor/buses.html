@@ -1,10 +1,20 @@
 {% extends "base_supervisor.html" %}
 {% block content %}
-<h1>Buses</h1>
+<div style="display:flex; justify-content:space-between; align-items:center;">
+    <h1>Buses</h1>
+
+    <a href="/admin_buses" class="btn btn-primary"
+       style="padding:8px 14px; font-size:14px; border-radius:6px; display:flex; align-items:center; gap:6px;">
+        <span style="font-size:18px;">⚙️</span>
+        Administrar
+    </a>
+</div>
+
+
 {% if buses %}
 <table class="data-table">
 	<thead>
-		<tr><th>ID</th><th>Placa</th><th>Modelo</th><th>Marca</th><th>Año</th><th>Color</th><th>Última revisión</th><th>Ruta</th><th>Encargado</th><th>Acciones</th></tr>
+		<tr><th>ID</th><th>Placa</th><th>Modelo</th><th>Marca</th><th>Año</th><th>Color</th><th>Última revisión</th><th>Ruta</th><th>Encargado</th></tr>
 	</thead>
 	<tbody>
 		{% for b in buses %}
@@ -18,7 +28,7 @@
 			<td>{{ b.ultima_revision }}</td>
 			<td>{{ b.ruta_letra or '-' }}</td>
 			<td>{{ (b.encargado_nombre ~ ' ' ~ b.encargado_apellido).strip() if b.encargado_nombre else '-' }}</td>
-			<td><button class="btn btn-warning btn-sm" onclick="abrirModalEditar('{{ b.id_bus }}')">Editar</button></td>
+			
 
 		</tr>
 		{% endfor %}

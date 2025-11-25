@@ -10,7 +10,7 @@ app.secret_key = "clave_segura_cualquiera"
 # Página pública principal
 @app.route("/")
 def index():
-    # Intentar obtener buses y horarios desde la base de datos; si falla, pasar listas vacías
+    # Intentar obtener buses y horarios desde la base de datos; si falla, pasar listas vacíass
     buses = []
     horarios = []
     try:
@@ -299,6 +299,282 @@ def supervisor_buses():
     cursor.close()
     conn.close()
     return render_template("supervisor/buses.html", supervisor=session["supervisor"], buses=buses)
+
+
+@app.route("/admin_buses")
+def admin_buses():
+    if "supervisor" not in session:
+        return redirect("/login")
+    
+    conn = get_connection()
+    cursor = conn.cursor(dictionary=True)
+
+    # Filtrar por ruta según supervisor
+    if session.get('route_id'):
+        cursor.execute("""
+            SELECT b.id_bus, b.placa, b.modelo, b.marca, b.año_fabricacion,
+                   b.color, b.ultima_revision, r.letra AS ruta_letra,
+                   e.nombre AS encargado_nombre, e.apellido AS encargado_apellido
+            FROM bus b
+            LEFT JOIN ruta r ON b.id_ruta = r.id_ruta
+            LEFT JOIN empleado e ON b.id_empleado = e.id_empleado
+            WHERE b.id_ruta=%s
+            ORDER BY b.id_bus
+        """, (session['route_id'],))
+    else:
+        cursor.execute("""
+            SELECT b.id_bus, b.placa, b.modelo, b.marca, b.año_fabricacion,
+                   b.color, b.ultima_revision, r.letra AS ruta_letra,
+                   e.nombre AS encargado_nombre, e.apellido AS encargado_apellido
+            FROM bus b
+            LEFT JOIN ruta r ON b.id_ruta = r.id_ruta
+            LEFT JOIN empleado e ON b.id_empleado = e.id_empleado
+            ORDER BY b.id_bus
+        """)
+
+    buses = cursor.fetchall()
+    cursor.close()
+    conn.close()
+
+    return render_template("supervisor/admin_buses.html",
+                           supervisor=session["supervisor"],
+                           buses=buses)
+
+
+
+@app.route("/admin_buses/update", methods=["POST"])
+def update_bus():
+    if "supervisor" not in session:
+        return redirect("/login")
+
+    id_bus = request.form.get("id_bus")
+    placa = request.form.get("placa")
+    modelo = request.form.get("modelo")
+    marca = request.form.get("marca")
+    año = request.form.get("año_fabricacion")
+    color = request.form.get("color")
+    revision = request.form.get("ultima_revision")
+
+    conn = get_connection()
+    cursor = conn.cursor()
+
+    cursor.execute("""
+        UPDATE bus SET 
+            placa=%s,
+            modelo=%s,
+            marca=%s,
+            año_fabricacion=%s,
+            color=%s,
+            ultima_revision=%s
+        WHERE id_bus=%s
+    """, (placa, modelo, marca, año, color, revision, id_bus))
+
+    conn.commit()
+    cursor.close()
+    conn.close()
+
+    return redirect("/admin_buses")
+
+@app.route("/admin_buses/update_all", methods=["POST"])
+def update_all_buses():
+    if "supervisor" not in session:
+        return redirect("/login")
+
+    ids = request.form.getlist("id_bus[]")
+    placas = request.form.getlist("placa[]")
+    modelos = request.form.getlist("modelo[]")
+    marcas = request.form.getlist("marca[]")
+    años = request.form.getlist("año_fabricacion[]")
+    colores = request.form.getlist("color[]")
+    revisiones = request.form.getlist("ultima_revision[]")
+
+    conn = get_connection()
+    cursor = conn.cursor()
+
+    for i in range(len(ids)):
+        cursor.execute("""
+            UPDATE bus SET
+                placa=%s,
+                modelo=%s,
+                marca=%s,
+                año_fabricacion=%s,
+                color=%s,
+                ultima_revision=%s
+            WHERE id_bus=%s
+        """, (placas[i], modelos[i], marcas[i], años[i], colores[i], revisiones[i], ids[i]))
+
+    conn.commit()
+    cursor.close()
+    conn.close()
+
+    return redirect("/supervisor/buses")
+
+@app.route("/admin_buses/delete/<int:id_bus>", methods=["POST"])
+def admin_buses_delete(id_bus):
+    if "supervisor" not in session:
+        return redirect("/login")
+
+    conn = get_connection()
+    cursor = conn.cursor()
+
+    try:
+        cursor.execute("DELETE FROM bus WHERE id_bus = %s", (id_bus,))
+        conn.commit()
+        flash("Bus eliminado correctamente", "success")
+    except Exception as e:
+        conn.rollback()
+        flash(f"Error al eliminar el bus: {e}", "danger")
+
+    cursor.close()
+    conn.close()
+
+    return redirect("/admin_buses")
+
+@app.route("/admin_buses/nuevo", methods=["GET"])
+def admin_buses_nuevo_get():
+    if "supervisor" not in session:
+        return redirect("/login")
+
+    conn = get_connection()
+    cursor = conn.cursor(dictionary=True)
+
+    # Rutas disponibles
+    cursor.execute("SELECT * FROM ruta ORDER BY letra")
+    rutas = cursor.fetchall()
+
+    # Empleados disponibles
+    cursor.execute("SELECT id_empleado, nombre, apellido FROM empleado ORDER BY nombre")
+    empleados = cursor.fetchall()
+
+    cursor.close()
+    conn.close()
+
+    return render_template("supervisor/nuevo_bus.html", rutas=rutas, empleados=empleados)
+
+@app.route("/admin_buses/nuevo", methods=["POST"])
+def admin_buses_nuevo_post():
+    if "supervisor" not in session:
+        return redirect("/login")
+
+    placa = request.form.get("placa")
+    modelo = request.form.get("modelo")
+    marca = request.form.get("marca")
+    año = request.form.get("año_fabricacion")
+    color = request.form.get("color")
+    revision = request.form.get("ultima_revision")
+    id_ruta = request.form.get("id_ruta")
+    id_empleado = request.form.get("id_empleado")
+
+    conn = get_connection()
+    cursor = conn.cursor()
+
+    try:
+        cursor.execute("""
+            INSERT INTO bus (placa, modelo, marca, año_fabricacion, color, ultima_revision, id_ruta, id_empleado)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
+        """, (placa, modelo, marca, año, color, revision, id_ruta, id_empleado))
+        
+        conn.commit()
+        flash("Bus agregado correctamente", "success")
+    except Exception as e:
+        conn.rollback()
+        flash(f"Error: {e}", "danger")
+
+    cursor.close()
+    conn.close()
+
+    return redirect("/admin_buses")
+
+@app.route("/admin_buses/export")
+def export_buses_csv():
+    if "supervisor" not in session:
+        return redirect("/login")
+
+    conn = get_connection()
+    cursor = conn.cursor(dictionary=True)
+
+    # ------------------------------------
+    #   CONSULTA FILTRADA SOLO DE TU RUTA
+    # ------------------------------------
+    sql = """
+        SELECT b.id_bus, b.placa, b.modelo, b.marca, b.año_fabricacion,
+               b.color, b.ultima_revision, r.letra AS ruta_letra,
+               e.nombre AS encargado_nombre, e.apellido AS encargado_apellido
+        FROM bus b
+        LEFT JOIN ruta r ON b.id_ruta = r.id_ruta
+        LEFT JOIN empleado e ON b.id_empleado = e.id_empleado
+        {filtro}
+        ORDER BY b.id_bus
+    """
+
+    filtro = ""
+    params = []
+
+    if session.get("route_id"):
+        filtro = "WHERE b.id_ruta=%s"
+        params = [session["route_id"]]
+
+    cursor.execute(sql.format(filtro=filtro), params)
+    buses = cursor.fetchall()
+
+    # ------------------------------------
+    #   OBTENER CREATE TABLE REAL
+    # ------------------------------------
+    cursor.execute("SHOW CREATE TABLE bus")
+    create_data = cursor.fetchone()
+    create_sql = create_data["Create Table"]
+
+    cursor.close()
+    conn.close()
+
+    # ------------------------------------
+    #   GENERAR CSV EN MEMORIA
+    # ------------------------------------
+    import csv
+    import io
+    from flask import send_file
+
+    output = io.StringIO()
+    writer = csv.writer(output)
+
+    # ======= BLOQUE 1: DATOS =======
+    writer.writerow(["=== DATOS DE LOS BUSES SUPERVISADOS ==="])
+    writer.writerow([])
+
+    if buses:
+        # Cabeceras
+        writer.writerow(buses[0].keys())
+        # Filas
+        for row in buses:
+            writer.writerow(row.values())
+    else:
+        writer.writerow(["No tienes buses en esta ruta"])
+
+    writer.writerow([])
+    writer.writerow([])
+
+    # ======= BLOQUE 2: CREATE TABLE =======
+    writer.writerow(["=== SENTENCIA SQL PARA CREAR TABLA BUS ==="])
+    writer.writerow([create_sql])
+
+    # Preparar archivo
+    output.seek(0)
+
+    return send_file(
+        io.BytesIO(output.getvalue().encode("utf-8-sig")),
+        as_attachment=True,
+        download_name="buses.csv",
+        mimetype="text/csv"
+    )
+
+
+
+
+
+
+
+
+
 
 
 @app.route("/supervisor/caja")

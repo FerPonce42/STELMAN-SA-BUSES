@@ -1,0 +1,46 @@
+{% extends "base_supervisor.html" %}
+{% block content %}
+
+<h1>Agregar Nuevo Bus</h1>
+
+<form method="POST" action="/admin_buses/nuevo">
+    <label>Placa:</label>
+    <input type="text" name="placa" required>
+
+    <label>Modelo:</label>
+    <input type="text" name="modelo" required>
+
+    <label>Marca:</label>
+    <input type="text" name="marca" required>
+
+    <label>Año de fabricación:</label>
+    <input type="number" name="año_fabricacion" required>
+
+    <label>Color:</label>
+    <input type="text" name="color" required>
+
+    <label>Última revisión:</label>
+    <input type="date" name="ultima_revision" required>
+
+    <label>Ruta del bus:</label>
+    <select name="id_ruta" required>
+        {% for r in rutas %}
+        <option value="{{ r.id_ruta }}">{{ r.letra }}</option>
+        {% endfor %}
+    </select>
+
+    <label>Encargado (empleado):</label>
+    <select name="id_empleado" required>
+        {% for e in empleados %}
+        <option value="{{ e.id_empleado }}">{{ e.nombre }} {{ e.apellido }}</option>
+        {% endfor %}
+    </select>
+
+    <br><br>
+    <button class="btn btn-primary">Guardar Bus</button>
+</form>
+
+<br>
+<a href="/admin_buses" class="btn btn-secondary">Volver</a>
+
+{% endblock %}
