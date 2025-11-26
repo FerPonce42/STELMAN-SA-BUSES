@@ -10,7 +10,7 @@ app.secret_key = "clave_segura_cualquiera"
 # Página pública principal
 @app.route("/")
 def index():
-    # Intentar obtener buses y horarios desde la base de datos; si falla, pasar listas vacíass
+    # Intentar obtener buses y horarios desde la base de datos; si falla, pasar listas vacíaaas
     buses = []
     horarios = []
     try:
@@ -219,7 +219,7 @@ def dashboard():
         total_incidencias = cursor.fetchone().get('total_incidencias', 0)
 
     # Conteo de buses por ruta (para gráfico)
-    # Conteo de buses por ruta (si route_id existe, devolver solo esa ruta)
+
     if session.get('route_id'):
         cursor.execute("SELECT r.letra AS ruta, COUNT(b.id_bus) AS buses_count FROM ruta r LEFT JOIN bus b ON r.id_ruta = b.id_ruta WHERE r.id_ruta=%s GROUP BY r.id_ruta ORDER BY r.letra", (session['route_id'],))
     else:
@@ -227,7 +227,6 @@ def dashboard():
     buses_por_ruta = cursor.fetchall()
 
     # Incidencias recientes
-    # Incidencias recientes (si route filter exists, filtrar por bus->ruta)
     if session.get('route_id'):
         cursor.execute("SELECT i.id_incdncia_oprtva AS id, i.fecha, i.descripccion, i.estado FROM incdncia_oprtva i LEFT JOIN bus b ON i.id_bus=b.id_bus WHERE b.id_ruta=%s ORDER BY i.fecha DESC LIMIT 6", (session['route_id'],))
     else:
@@ -312,9 +311,18 @@ def admin_buses():
     # Filtrar por ruta según supervisor
     if session.get('route_id'):
         cursor.execute("""
-            SELECT b.id_bus, b.placa, b.modelo, b.marca, b.año_fabricacion,
-                   b.color, b.ultima_revision, r.letra AS ruta_letra,
-                   e.nombre AS encargado_nombre, e.apellido AS encargado_apellido
+            SELECT 
+                b.id_bus, 
+                b.placa, 
+                b.modelo, 
+                b.marca, 
+                b.año_fabricacion,
+                b.color, 
+                b.ultima_revision,
+                b.id_ruta,                     -- ESTA LÍNEA ES LA CLAVE
+                r.letra AS ruta_letra,
+                e.nombre AS encargado_nombre, 
+                e.apellido AS encargado_apellido
             FROM bus b
             LEFT JOIN ruta r ON b.id_ruta = r.id_ruta
             LEFT JOIN empleado e ON b.id_empleado = e.id_empleado
@@ -323,9 +331,18 @@ def admin_buses():
         """, (session['route_id'],))
     else:
         cursor.execute("""
-            SELECT b.id_bus, b.placa, b.modelo, b.marca, b.año_fabricacion,
-                   b.color, b.ultima_revision, r.letra AS ruta_letra,
-                   e.nombre AS encargado_nombre, e.apellido AS encargado_apellido
+            SELECT 
+                b.id_bus, 
+                b.placa, 
+                b.modelo, 
+                b.marca, 
+                b.año_fabricacion,
+                b.color, 
+                b.ultima_revision,
+                b.id_ruta,                     -- IGUALMENTE SE AGREGA AQUÍ
+                r.letra AS ruta_letra,
+                e.nombre AS encargado_nombre, 
+                e.apellido AS encargado_apellido
             FROM bus b
             LEFT JOIN ruta r ON b.id_ruta = r.id_ruta
             LEFT JOIN empleado e ON b.id_empleado = e.id_empleado
@@ -333,12 +350,18 @@ def admin_buses():
         """)
 
     buses = cursor.fetchall()
+
+    # Cargar rutas disponibles (para el select)
+    cursor.execute("SELECT id_ruta, letra FROM ruta ORDER BY letra")
+    rutas = cursor.fetchall()
+
     cursor.close()
     conn.close()
 
     return render_template("supervisor/admin_buses.html",
                            supervisor=session["supervisor"],
-                           buses=buses)
+                           buses=buses,
+                           rutas=rutas)
 
 
 
@@ -354,6 +377,9 @@ def update_bus():
     año = request.form.get("año_fabricacion")
     color = request.form.get("color")
     revision = request.form.get("ultima_revision")
+    id_ruta = request.form.get("id_ruta")
+
+
 
     conn = get_connection()
     cursor = conn.cursor()
@@ -366,6 +392,8 @@ def update_bus():
             año_fabricacion=%s,
             color=%s,
             ultima_revision=%s
+            id_ruta=%s
+
         WHERE id_bus=%s
     """, (placa, modelo, marca, año, color, revision, id_bus))
 
@@ -387,6 +415,7 @@ def update_all_buses():
     años = request.form.getlist("año_fabricacion[]")
     colores = request.form.getlist("color[]")
     revisiones = request.form.getlist("ultima_revision[]")
+    rutas = request.form.getlist("id_ruta[]") 
 
     conn = get_connection()
     cursor = conn.cursor()
@@ -399,15 +428,17 @@ def update_all_buses():
                 marca=%s,
                 año_fabricacion=%s,
                 color=%s,
-                ultima_revision=%s
+                ultima_revision=%s,
+                id_ruta=%s
             WHERE id_bus=%s
-        """, (placas[i], modelos[i], marcas[i], años[i], colores[i], revisiones[i], ids[i]))
+        """, (placas[i], modelos[i], marcas[i], años[i], colores[i], revisiones[i], rutas[i], ids[i]))
 
     conn.commit()
     cursor.close()
     conn.close()
 
     return redirect("/supervisor/buses")
+
 
 @app.route("/admin_buses/delete/<int:id_bus>", methods=["POST"])
 def admin_buses_delete(id_bus):
@@ -493,9 +524,8 @@ def export_buses_csv():
     conn = get_connection()
     cursor = conn.cursor(dictionary=True)
 
-    # ------------------------------------
     #   CONSULTA FILTRADA SOLO DE TU RUTA
-    # ------------------------------------
+
     sql = """
         SELECT b.id_bus, b.placa, b.modelo, b.marca, b.año_fabricacion,
                b.color, b.ultima_revision, r.letra AS ruta_letra,
@@ -516,20 +546,16 @@ def export_buses_csv():
 
     cursor.execute(sql.format(filtro=filtro), params)
     buses = cursor.fetchall()
-
-    # ------------------------------------
     #   OBTENER CREATE TABLE REAL
-    # ------------------------------------
+
     cursor.execute("SHOW CREATE TABLE bus")
     create_data = cursor.fetchone()
     create_sql = create_data["Create Table"]
 
     cursor.close()
     conn.close()
+    #   GENERAR CSV
 
-    # ------------------------------------
-    #   GENERAR CSV EN MEMORIA
-    # ------------------------------------
     import csv
     import io
     from flask import send_file
@@ -537,7 +563,7 @@ def export_buses_csv():
     output = io.StringIO()
     writer = csv.writer(output)
 
-    # ======= BLOQUE 1: DATOS =======
+
     writer.writerow(["=== DATOS DE LOS BUSES SUPERVISADOS ==="])
     writer.writerow([])
 
@@ -553,11 +579,9 @@ def export_buses_csv():
     writer.writerow([])
     writer.writerow([])
 
-    # ======= BLOQUE 2: CREATE TABLE =======
     writer.writerow(["=== SENTENCIA SQL PARA CREAR TABLA BUS ==="])
     writer.writerow([create_sql])
 
-    # Preparar archivo
     output.seek(0)
 
     return send_file(
@@ -830,8 +854,7 @@ def ejecutar_sql():
         conn = get_connection()
         cursor = conn.cursor(dictionary=True)
 
-        # --- Aplicar filtro de ruta automáticamente para supervisores ---
-        # Tablas que deben filtrarse por ruta
+
         tablas_filtradas = ["BUS", "EMPLEADO", "CHOFER", "COBRADOR"]
 
         ruta_id = session.get("route_id")
@@ -852,10 +875,10 @@ def ejecutar_sql():
             else:
                 cursor.execute(sql)
         else:
-            # Para UPDATE, DELETE, INSERT
+
             cursor.execute(sql)
             if sql_upper.startswith(("UPDATE", "DELETE", "INSERT")):
-                # Si se filtrara por ruta, se podría aplicar lógica similar
+               
                 conn.commit()
 
         if sql_upper.startswith("SELECT"):
@@ -874,7 +897,7 @@ def ejecutar_sql():
     return render_template(
         "supervisor/editar_entidad.html",
         supervisor=session["supervisor"],
-        entidad="bus",  # o la entidad correspondiente
+        entidad="bus", 
         registro=None,
         pk=None,
         mensaje=mensaje,
@@ -938,7 +961,6 @@ def editar_entidades(entidades, registro_id):
         cursor.close()
         conn.close()
         return mensaje
-
     # Si es GET, mostramos el registro y la lista de entidades
     cursor.close()
     conn.close()

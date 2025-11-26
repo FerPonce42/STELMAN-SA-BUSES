@@ -1,46 +1,159 @@
 {% extends "base_supervisor.html" %}
 {% block content %}
 
-<h1>Agregar Nuevo Bus</h1>
+<h1 style="margin-bottom: 25px; color:#0f2e4d;">Agregar Nuevo Bus</h1>
 
-<form method="POST" action="/admin_buses/nuevo">
-    <label>Placa:</label>
-    <input type="text" name="placa" required>
+<div class="panel-ancho">
+    <h1>Agregar Nuevo Bus</h1>
 
-    <label>Modelo:</label>
-    <input type="text" name="modelo" required>
+    <form method="POST" action="/admin_buses/nuevo" class="form-grid">
 
-    <label>Marca:</label>
-    <input type="text" name="marca" required>
+        <div>
+            <label>Placa:</label>
+            <input type="text" name="placa" required>
+        </div>
 
-    <label>Año de fabricación:</label>
-    <input type="number" name="año_fabricacion" required>
+        <div>
+            <label>Modelo:</label>
+            <input type="text" name="modelo" required>
+        </div>
 
-    <label>Color:</label>
-    <input type="text" name="color" required>
+        <div>
+            <label>Marca:</label>
+            <input type="text" name="marca" required>
+        </div>
 
-    <label>Última revisión:</label>
-    <input type="date" name="ultima_revision" required>
+        <div>
+            <label>Año de fabricación:</label>
+            <input type="number" name="año_fabricacion" required>
+        </div>
 
-    <label>Ruta del bus:</label>
-    <select name="id_ruta" required>
-        {% for r in rutas %}
-        <option value="{{ r.id_ruta }}">{{ r.letra }}</option>
-        {% endfor %}
-    </select>
+        <div>
+            <label>Color:</label>
+            <input type="text" name="color" required>
+        </div>
 
-    <label>Encargado (empleado):</label>
-    <select name="id_empleado" required>
-        {% for e in empleados %}
-        <option value="{{ e.id_empleado }}">{{ e.nombre }} {{ e.apellido }}</option>
-        {% endfor %}
-    </select>
+        <div>
+            <label>Última revisión:</label>
+            <input type="date" name="ultima_revision" required>
+        </div>
 
-    <br><br>
-    <button class="btn btn-primary">Guardar Bus</button>
-</form>
+        <div>
+            <label>Ruta del bus:</label>
+            <select name="id_ruta" required>
+                {% for r in rutas %}
+                <option value="{{ r.id_ruta }}">{{ r.letra }}</option>
+                {% endfor %}
+            </select>
+        </div>
 
-<br>
-<a href="/admin_buses" class="btn btn-secondary">Volver</a>
+        <div>
+            <label>Encargado (empleado):</label>
+            <select name="id_empleado" required>
+                {% for e in empleados %}
+                <option value="{{ e.id_empleado }}">{{ e.nombre }} {{ e.apellido }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        
+        <div style="grid-column: 1 / 3; text-align:center; margin-top:15px;">
+            <button class="btn btn-primary">Guardar Bus</button>
+            <a href="/admin_buses" class="btn-volver">Volver</a>
+
+        </div>
+
+    </form>
+</div>
+
+
+<style>
+
+/* TARJETA CENTRAL MÁS ANCHA */
+.form-card {
+    background: #ffffff;
+    padding: 35px;
+    border-radius: 18px;
+    max-width: 1100px;   /* ⭐ MÁS ANCHO */
+    margin: auto;
+    box-shadow: 0 4px 22px rgba(0,0,0,0.15);
+}
+
+/* GRID DE 2 COLUMNAS */
+.form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;   /* ⭐ DOS COLUMNAS */
+    gap: 25px 35px;                    /* espacio entre filas y columnas */
+}
+
+/* Cada campo */
+.form-group label {
+    display: block;
+    margin-bottom: 6px;
+    font-weight: 600;
+    color: #1e3a59;
+}
+
+/* Inputs y selects */
+.form-group input,
+.form-group select {
+    width: 100%;
+    padding: 14px 15px;
+    border-radius: 10px;
+    border: 1px solid #cbd4e2;
+    background: #f4f7fb;
+    font-size: 1rem;
+    transition: 0.2s;
+}
+
+.form-group input:focus,
+.form-group select:focus {
+    border-color: #1453a8;
+    background: #fff;
+    box-shadow: 0 0 0 3px rgba(30, 83, 168, 0.3);
+    outline: none;
+}
+
+/* FOOTER: BOTONES DEBAJO EN UNA SOLA LÍNEA */
+.form-footer {
+    grid-column: span 2;   /* ⭐ OCUPA TODA LA FILA */
+    display: flex;
+    justify-content: flex-end;
+    gap: 15px;
+}
+
+/* Botón guardar */
+.btn-save {
+    background: #124c8c;
+    color: white;
+    padding: 14px 26px;
+    border: none;
+    border-radius: 10px;
+    font-size: 1.05rem;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.btn-save:hover {
+    background: #0d3f73;
+    transform: translateY(-2px);
+}
+
+/* Botón volver */
+.btn-back {
+    background: #6e6e6e;
+    padding: 14px 26px;
+    border-radius: 10px;
+    color: white;
+    text-decoration: none;
+    transition: 0.2s;
+}
+
+.btn-back:hover {
+    background: #555;
+    transform: translateY(-2px);
+}
+
+</style>
 
 {% endblock %}

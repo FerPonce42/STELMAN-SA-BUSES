@@ -10,85 +10,97 @@
 </div>
 
 
-<!-- FORMULARIO PARA GUARDAR TODOS -->
+
 <form method="POST" action="/admin_buses/update_all">
 
 <table class="data-table">
-    <thead>
-        <tr>
-            <th>ID</th>
-            <th>Placa</th>
-            <th>Modelo</th>
-            <th>Marca</th>
-            <th>Año</th>
-            <th>Color</th>
-            <th>Última revisión</th>
-            <th>Encargado</th>
-            <th>Guardar</th>
-            <th>Eliminar</th>
-        </tr>
-    </thead>
+<thead>
+    <tr>
+        <th>ID</th>
+        <th>Placa</th>
+        <th>Modelo</th>
+        <th>Marca</th>
+        <th>Año</th>
+        <th>Color</th>
+        <th>Última revisión</th>
+        <th>Encargado</th>
+        <th>Ruta</th>       
+        <th>Guardar</th>
+        <th>Eliminar</th>
+    </tr>
+</thead>
 
-    <tbody>
-        {% for b in buses %}
-        <tr>
+<tbody>
+    {% for b in buses %}
+    <tr>
 
-            <!-- CAMPOS EDITABLES -->
-            <td>
-                {{ b.id_bus }}
-                <input type="hidden" name="id_bus[]" value="{{ b.id_bus }}">
-            </td>
+        <td>
+            {{ b.id_bus }}
+            <input type="hidden" name="id_bus[]" value="{{ b.id_bus }}">
+        </td>
 
-            <td><input type="text" name="placa[]" value="{{ b.placa }}"></td>
-            <td><input type="text" name="modelo[]" value="{{ b.modelo }}"></td>
-            <td><input type="text" name="marca[]" value="{{ b.marca }}"></td>
-            <td><input type="number" name="año_fabricacion[]" value="{{ b.año_fabricacion }}"></td>
-            <td><input type="text" name="color[]" value="{{ b.color }}"></td>
-            <td><input type="date" name="ultima_revision[]" value="{{ b.ultima_revision }}"></td>
-            <td>{{ b.encargado_nombre }} {{ b.encargado_apellido }}</td>
+        <td><input type="text" name="placa[]" value="{{ b.placa }}"></td>
+        <td><input type="text" name="modelo[]" value="{{ b.modelo }}"></td>
+        <td><input type="text" name="marca[]" value="{{ b.marca }}"></td>
+        <td><input type="number" name="año_fabricacion[]" value="{{ b.año_fabricacion }}"></td>
+        <td><input type="text" name="color[]" value="{{ b.color }}"></td>
+        <td><input type="date" name="ultima_revision[]" value="{{ b.ultima_revision }}"></td>
+        <td>{{ b.encargado_nombre }} {{ b.encargado_apellido }}</td>
 
-            <!-- GUARDAR INDIVIDUAL -->
-            <td>
-                <form method="POST" action="/admin_buses/update">
-                    <input type="hidden" name="id_bus" value="{{ b.id_bus }}">
+        
+        <td>
+            <select name="id_ruta[]" class="form-control">
+                {% for r in rutas %}
+                <option value="{{ r.id_ruta }}"
+                    {% if r.id_ruta == b.id_ruta %} selected {% endif %}>
+                    {{ r.letra }}
+                </option>
+                {% endfor %}
+            </select>
+        </td>
 
-                    <input type="hidden" name="placa" id="single_placa_{{ b.id_bus }}">
-                    <input type="hidden" name="modelo" id="single_modelo_{{ b.id_bus }}">
-                    <input type="hidden" name="marca" id="single_marca_{{ b.id_bus }}">
-                    <input type="hidden" name="año_fabricacion" id="single_anio_{{ b.id_bus }}">
-                    <input type="hidden" name="color" id="single_color_{{ b.id_bus }}">
-                    <input type="hidden" name="ultima_revision" id="single_revision_{{ b.id_bus }}">
+        
+        <td>
+            <form method="POST" action="/admin_buses/update">
+                <input type="hidden" name="id_bus" value="{{ b.id_bus }}">
 
-                    <button class="btn btn-success btn-sm" onclick="copiarFila({{ b.id_bus }});">
-                        Guardar
-                    </button>
-                </form>
-            </td>
+                <input type="hidden" name="placa" id="single_placa_{{ b.id_bus }}">
+                <input type="hidden" name="modelo" id="single_modelo_{{ b.id_bus }}">
+                <input type="hidden" name="marca" id="single_marca_{{ b.id_bus }}">
+                <input type="hidden" name="año_fabricacion" id="single_anio_{{ b.id_bus }}">
+                <input type="hidden" name="color" id="single_color_{{ b.id_bus }}">
+                <input type="hidden" name="ultima_revision" id="single_revision_{{ b.id_bus }}">
+                <input type="hidden" name="id_ruta" id="single_ruta_{{ b.id_bus }}">
 
-            <!-- ELIMINAR -->
-            <td>
-                <form method="POST" action="/admin_buses/delete/{{ b.id_bus }}"
-                      onsubmit="return confirm('¿Seguro que deseas eliminar este bus?');">
-                    <button class="btn btn-danger btn-sm">Eliminar</button>
-                </form>
-            </td>
+                <button class="btn btn-success btn-sm"
+                        onclick="copiarFila({{ b.id_bus }});">
+                    Guardar
+                </button>
+            </form>
+        </td>
 
-        </tr>
-        {% endfor %}
-    </tbody>
+        <td>
+            <form method="POST" action="/admin_buses/delete/{{ b.id_bus }}"
+                  onsubmit="return confirm('¿Seguro que deseas eliminar este bus?');">
+                <button class="btn btn-danger btn-sm">Eliminar</button>
+            </form>
+        </td>
+
+    </tr>
+    {% endfor %}
+</tbody>
+
 </table>
 
 <br>
 <div style="text-align: right;">
     <button class="btn btn-primary" style="padding:10px 20px; font-size:16px;">
-        Guardar TODOS los cambios
+        Guardar todo
     </button>
 </div>
 
 </form>
 
-
-<!-- SCRIPT PARA COPIAR LOS VALORES EDITADOS A LOS HIDDEN -->
 <script>
 function copiarFila(id) {
     const fila = document.querySelector(`tr td input[value='${id}']`).parentNode.parentNode;
@@ -103,5 +115,24 @@ function copiarFila(id) {
     document.getElementById(`single_revision_${id}`).value = inputs[5].value;
 }
 </script>
+
+<script>
+function copiarFila(id) {
+    const fila = document.querySelector(`tr td input[value='${id}']`).closest("tr");
+
+    const inputs = fila.querySelectorAll("input[type='text'], input[type='number'], input[type='date']");
+    const selectRuta = fila.querySelector("select[name='id_ruta[]']");
+
+    document.getElementById(`single_placa_${id}`).value = inputs[0].value;
+    document.getElementById(`single_modelo_${id}`).value = inputs[1].value;
+    document.getElementById(`single_marca_${id}`).value = inputs[2].value;
+    document.getElementById(`single_anio_${id}`).value = inputs[3].value;
+    document.getElementById(`single_color_${id}`).value = inputs[4].value;
+    document.getElementById(`single_revision_${id}`).value = inputs[5].value;
+
+    document.getElementById(`single_ruta_${id}`).value = selectRuta.value;
+}
+</script>
+
 
 {% endblock %}

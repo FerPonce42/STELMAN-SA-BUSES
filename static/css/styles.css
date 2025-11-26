@@ -2006,7 +2006,7 @@ section.features {
     box-shadow: 0 8px 20px rgba(245, 185, 66, 0.4);
 }
 
-/* ===== MAPA MEJORADO ===== */
+
 .contact-map {
     background-color: #ffffff;
     padding: 50px 80px;
@@ -2036,7 +2036,6 @@ section.features {
     box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
 }
 
-/* ===== UNIDADES DE NEGOCIO MEJORADAS ===== */
 .business-units {
     background-color: #1a2b4a;
     padding: 60px 80px;
@@ -2103,7 +2102,7 @@ section.features {
     margin-bottom: 8px;
 }
 
-/* ===== RESPONSIVE ===== */
+
 @media (max-width: 1024px) {
     .contact-info {
         grid-template-columns: 1fr 1fr;
@@ -2172,4 +2171,121 @@ section.features {
         height: 48px;
         font-size: 1.2rem;
     }
+}
+
+
+.btn {
+    padding: 10px 18px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    display: inline-block;
+    letter-spacing: .3px;
+}
+
+.btn-primary,
+.btn-warning,
+.btn-success {
+    background: #1e4c7a;
+    color: #fff;
+    box-shadow: 0 4px 10px rgba(30, 76, 122, 0.35);
+}
+
+.btn-primary:hover,
+.btn-warning:hover,
+.btn-success:hover {
+    background: #163a5c;
+    transform: translateY(-2px);
+}
+
+.btn-info {
+    background: #6e6e6e;
+    color: #fff;
+    box-shadow: 0 4px 10px rgba(110, 110, 110, 0.35);
+}
+
+.btn-info:hover {
+    background: #555;
+    transform: translateY(-2px);
+}
+
+.btn-danger {
+    background: #d9534f;
+    color: #fff;
+    box-shadow: 0 4px 10px rgba(217, 83, 79, 0.35);
+}
+
+.btn-danger:hover {
+    background: #c64541;
+    transform: translateY(-2px);
+}
+
+.btn-sm {
+    padding: 6px 12px !important;
+    font-size: 0.82rem !important;
+    border-radius: 6px !important;
+}
+
+.btn-big {
+    padding: 14px 26px;
+    font-size: 1.05rem;
+    border-radius: 10px;
+    font-weight: 700;
+}
+
+.btn:active {
+    transform: scale(0.95);
+}
+
+
+.panel-ancho {
+    background: white;
+    padding: 2rem 3rem;
+    border-radius: 18px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+    width: 100%;
+    max-width: 1100px;
+    margin: auto;
+}
+
+.form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.3rem 2rem;
+    width: 100%;
+    margin-top: 1rem;
+}
+
+.form-grid label {
+    font-weight: 600;
+    margin-bottom: 0.3rem;
+    display: block;
+}
+
+.form-grid input,
+.form-grid select {
+    width: 100%;
+    padding: 10px;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    font-size: 0.95rem;
+}
+.btn-volver {
+    background: #6c757d;
+    color: white !important;
+    padding: 10px 22px;
+    border-radius: 10px;
+    border: none;
+    font-size: 0.95rem;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    display: inline-block;
+}
+
+.btn-volver:hover {
+    background: #5a6268;
+    transform: translateY(-2px);
 }
